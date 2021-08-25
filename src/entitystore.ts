@@ -1,8 +1,11 @@
+import { Bridge } from "./bridge";
 import { DeleteSourceAction } from "./deletesourceaction";
 import { Entity } from "./entity";
+import { EntityFactory } from "./entityfactory";
 import { LoadSourceAction } from "./loadsourceaction";
 import { Source } from "./source";
 import { SourceAction } from "./sourceaction";
+import { SourceActionFactory } from "./sourceactionfactory";
 import { UpdateSourceAction } from "./updatesourceaction";
 
 export class EntityStore {
@@ -47,6 +50,70 @@ export class EntityStore {
 
             delete this._actions[key];
         }
+    }
+
+    public syncTo(bridge: Bridge) {
+        const serializedActions: any = {};
+
+        for(const key in this._actions) {
+            const action: SourceAction = this._actions[key];
+            //$entityClass = get_class($action->getEntity());
+
+            //if(array_key_exists($entityClass, $this->sources)) {
+                action.sync(action.entity.source);
+            //}
+
+            serializedActions[key] = SourceActionFactory.serialize(action);
+        }
+
+        const entities = bridge.send(serializedActions);
+
+        while (Object.keys(this._actions).length > 0) {
+            const key = Object.keys(this._actions)[0];
+
+            const sourceAction: SourceAction = this._actions[key];
+
+            const entityClass = sourceAction.entity.name;
+
+            if(entities[entityClass]) {
+                sourceAction.entity.deserialize(entities[entityClass]);
+
+                sourceAction.sync(this._sources[entityClass]);
+            }
+
+            delete this._actions[key];
+        }
+    }
+
+    public syncFrom(bridge: Bridge, receivedActions: any) {
+        const deserializedActions: any = {};
+        const entities: any = {};
+
+        for(const key in receivedActions) {
+            const action: any = receivedActions[key];
+
+            if(!this._entities[action["entityKey"]]) {
+                this._entities[action["entityKey"]] = EntityFactory.newEntity(this, action["entity"], this._entities[action["refKey"]]);
+            }
+
+            const entity = this._entities[action["entityKey"]];
+
+            entity.deserialize(action["entity"]);
+
+            deserializedActions[key] = SourceActionFactory.deserialize(action, entity);
+
+            const entityClass = deserializedActions[key].entity.name;
+
+            if(this._sources[entityClass]) {
+                deserializedActions[key].sync(this._sources[entityClass]);
+
+                entities[entityClass] = deserializedActions[key].entity.serialize();
+            }
+        }
+
+        this.sync();
+
+        bridge.reply(entities);
     }
 
     public load(entity: Entity): void {

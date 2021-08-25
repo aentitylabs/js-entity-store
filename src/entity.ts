@@ -1,3 +1,4 @@
+import { EntityFactory } from "./entityfactory";
 import { EntityProperty } from "./entityproperty";
 import { EntityStore } from "./entitystore";
 import { NullSource } from "./nullsource";
@@ -93,6 +94,36 @@ export class Entity {
 
     public get(index: number) {
         return this.properties[index].value;
+    }
+
+    public add(): Entity {
+        const entity = EntityFactory.newEntity(this._entityStore, this._item, this);
+
+        entity.deserialize(this._item);
+
+        const collectionSize = Object.keys(this._properties).length;
+
+        this._properties[collectionSize] = entity;
+
+        entity._key = entity._key + "[" + (collectionSize) + "]";
+
+        entity._isItem = true;
+
+        this.entityStore.register(entity, this._source);
+
+        this._entityStore.update(entity);
+
+        this._entityStore.load(this);
+
+        return entity;
+    }
+
+    public remove(index: number) {
+        const toRemove = this.get(index);
+
+        this._entityStore.delete(toRemove);
+
+        this._entityStore.load(this);
     }
 
     public serialize(): any {
