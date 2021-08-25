@@ -1394,7 +1394,7 @@ describe('Broker', () => {
         ]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
-                
+
         //    1. $remoteEntityStore invia la sua coda di azioni
         //    2. $entityStore riceve la coda da $remoteEntityStore
         //    3. $entityStore si sincronizza
@@ -1402,4 +1402,355 @@ describe('Broker', () => {
         //    5. $remoteEntityStore riceve la lista di entity sincronizzate
         //    6. $remoteEntityStore si sincronizza
     })
+
+    it('test add entity into unrefered entity collection and sync with another entity store', () => {
+        const entityStore = new EntityStore();
+        const remoteEntityStore = new EntityStore();
+
+        const source = new MockSource();
+        const bridge = new MockBridge();
+
+        entityStore.addSource("StubEntityE", source);
+        entityStore.addSource("StubEntityB", source);
+        remoteEntityStore.addSource("StubEntityE", source);
+        remoteEntityStore.addSource("StubEntityB", source);
+
+        const eEntity = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityE",
+            "ref": false,
+            "collectionItem": {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": ""
+                    }
+                }
+            },
+            "properties": []
+        });
+        const remoteEEntity = EntityFactory.newEntity(remoteEntityStore, {
+            "entity": "StubEntityE",
+            "ref": false,
+            "collectionItem": {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": ""
+                    }
+                }
+            },
+            "properties": []
+        });
+
+        expect({
+            "StubEntityE::load": new LoadSourceAction(eEntity)
+        }).to.eql(entityStore.actions);
+        expect({
+            "StubEntityE::load": new LoadSourceAction(remoteEEntity)
+        }).to.eql(remoteEntityStore.actions);
+
+        source.loadedEntities = [
+            {
+                "entity": "StubEntityE",
+                "ref": false,
+                "collectionItem": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                },
+                "properties": [{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi1"
+                        }
+                    }
+                },{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi2"
+                        }
+                    }
+                }]
+            }
+        ];
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions);
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("hi1").to.eql(eEntity.get(0).prop1);
+        expect("hi2").to.eql(eEntity.get(1).prop1);
+        expect("hi1").to.eql(remoteEEntity.get(0).prop1);
+        expect("hi2").to.eql(remoteEEntity.get(1).prop1);
+
+        const bEntity = eEntity.add();
+        bEntity.prop1 = "hello";
+
+        expect({
+            "StubEntityE=>StubEntityB[2]::update": new UpdateSourceAction(bEntity),
+            "StubEntityE::load": new LoadSourceAction(eEntity)
+        }).to.eql(entityStore.actions);
+
+        source.loadedEntities = [
+            null,
+            {
+                "entity": "StubEntityE",
+                "ref": false,
+                "collectionItem": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                },
+                "properties": [{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi1"
+                        }
+                    }
+                },{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi2"
+                        }
+                    }
+                },{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hello"
+                        }
+                    }
+                }]
+            }
+        ];
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions);
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("hi1").to.eql(eEntity.get(0).prop1);
+        expect("hi2").to.eql(eEntity.get(1).prop1);
+        expect("hello").to.eql(eEntity.get(2).prop1);
+        expect("hi1").to.eql(remoteEEntity.get(0).prop1);
+        expect("hi2").to.eql(remoteEEntity.get(1).prop1);
+        expect("hello").to.eql(remoteEEntity.get(2).prop1);
+
+        expect([
+            {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hello"
+                    }
+                }
+            },{
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hello"
+                    }
+                }
+            },{
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hello"
+                    }
+                }
+            },
+        ]).to.eql(source.updateEntities);
+        expect(entityStore.actions).is.empty;
+        expect(remoteEntityStore.actions).is.empty;
+    })
+
+    it('test delete entity from unrefered entity collection and sync with another entity store', () => {
+        const entityStore = new EntityStore();
+        const remoteEntityStore = new EntityStore();
+
+        const source = new MockSource();
+        const bridge = new MockBridge();
+
+        entityStore.addSource("StubEntityE", source);
+        entityStore.addSource("StubEntityB", source);
+        remoteEntityStore.addSource("StubEntityE", source);
+        remoteEntityStore.addSource("StubEntityB", source);
+
+        const eEntity = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityE",
+            "ref": false,
+            "collectionItem": {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": ""
+                    }
+                }
+            },
+            "properties": []
+        });
+        const remoteEEntity = EntityFactory.newEntity(remoteEntityStore, {
+            "entity": "StubEntityE",
+            "ref": false,
+            "collectionItem": {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": ""
+                    }
+                }
+            },
+            "properties": []
+        });
+
+        expect({
+            "StubEntityE::load": new LoadSourceAction(eEntity)
+        }).to.eql(entityStore.actions);
+        expect({
+            "StubEntityE::load": new LoadSourceAction(remoteEEntity)
+        }).to.eql(remoteEntityStore.actions);
+
+        source.loadedEntities = [
+            {
+                "entity": "StubEntityE",
+                "ref": false,
+                "collectionItem": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                },
+                "properties": [{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi1"
+                        }
+                    }
+                },{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi2"
+                        }
+                    }
+                }]
+            }
+        ];
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions);
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("hi1").to.eql(eEntity.get(0).prop1);
+        expect("hi2").to.eql(eEntity.get(1).prop1);
+        expect("hi1").to.eql(remoteEEntity.get(0).prop1);
+        expect("hi2").to.eql(remoteEEntity.get(1).prop1);
+
+        eEntity.remove(1);
+
+        expect({
+            "StubEntityE=>StubEntityB[1]::delete": new DeleteSourceAction(eEntity.get(1)),
+            "StubEntityE::load": new LoadSourceAction(eEntity)
+        }).to.eql(entityStore.actions);
+
+        source.loadedEntities = [
+            null,
+            {
+                "entity": "StubEntityE",
+                "ref": false,
+                "collectionItem": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                },
+                "properties": [{
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": "hi1"
+                        }
+                    }
+                }]
+            }
+        ];
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions);
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("hi1").to.eql(eEntity.get(0).prop1);
+        expect("hi1").to.eql(remoteEEntity.get(0).prop1);
+
+        expect([
+            {
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hi2"
+                    }
+                }
+            },{
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hi2"
+                    }
+                }
+            },{
+                "entity": "StubEntityB",
+                "ref": true,
+                "properties": {
+                    "prop1": {
+                        "value": "hi2"
+                    }
+                }
+            },
+        ]).to.eql(source.deletedEntities);
+        expect(entityStore.actions).is.empty;
+        expect(remoteEntityStore.actions).is.empty;
+    })  
 });
