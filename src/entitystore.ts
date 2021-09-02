@@ -3,6 +3,7 @@ import { DeleteSourceAction } from "./deletesourceaction";
 import { Entity } from "./entity";
 import { EntityFactory } from "./entityfactory";
 import { LoadSourceAction } from "./loadsourceaction";
+import { NullSource } from "./nullsource";
 import { Source } from "./source";
 import { SourceAction } from "./sourceaction";
 import { SourceActionFactory } from "./sourceactionfactory";
@@ -26,7 +27,14 @@ export class EntityStore {
         this._entities[entity.key] = entity;
 
         if(!source) {
-            entity.source = this._sources[entity.name];
+            let entitySource = this._sources[entity.name];
+            
+            if(!entitySource) {
+                entity.source = new NullSource();    
+            }
+            else {
+                entity.source = this._sources[entity.name];
+            }
         }
         else {
             entity.source = source;
