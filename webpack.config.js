@@ -4,7 +4,7 @@ module.exports = {
     context: path.resolve('src'),
     devtool: 'inline-source-map',
     entry: './entitystore.ts',
-    mode: 'development',
+    mode: 'production',
     module: {
         rules: [{
             test: /\.tsx?$/,
