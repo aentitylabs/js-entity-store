@@ -1764,5 +1764,140 @@ describe('Broker', () => {
         ]).to.eql(source.deletedEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
-    })  
+    })
+
+    it('test entity store sync with another entity store with null source', () => {
+        const entityStore = new EntityStore();
+        const remoteEntityStore = new EntityStore();
+
+        const source = new MockSource();
+        const bridge = new MockBridge();
+
+        remoteEntityStore.addSource("StubEntityA", source);
+
+        const entity = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+        const remoteEntity = EntityFactory.newEntity(remoteEntityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+
+        expect({
+            "StubEntityA::load": new LoadSourceAction(entity)
+        }).to.eql(entityStore.actions);
+        expect({
+            "StubEntityA::load": new LoadSourceAction(remoteEntity)
+        }).to.eql(remoteEntityStore.actions);
+
+        source.loadedEntities = [
+            {
+                "entity": "StubEntityA",
+                "ref": false,
+                "properties": {
+                    "prop1": {
+                        "value": "this is sync hello!"
+                    },
+                    "prop2": {
+                        "entity": "StubEntityB",
+                        "ref": true,
+                        "properties": {
+                            "prop1": {
+                                "value": "this is sync, Tom!"
+                            }
+                        }
+                    }
+                }
+            }
+        ];
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("this is sync hello!").to.eql(entity.prop1);
+        expect("this is sync, Tom!").to.eql(entity.prop2.prop1);
+        expect(entity.prop1).to.eql(remoteEntity.prop1);
+        expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
+
+        entity.prop1 = "this is sync update";
+        entity.prop1 = "this is sync update!";
+        entity.prop2.prop1 = "this is sync update, Tom";
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
+        });
+
+        entityStore.syncTo(bridge);
+
+        expect("this is sync update!").to.eql(entity.prop1);
+        expect("this is sync update, Tom").to.eql(entity.prop2.prop1);
+        expect(entity.prop1).to.eql(remoteEntity.prop1);
+        expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
+
+        expect([
+            {
+                "entity": "StubEntityA",
+                "ref": false,
+                "properties": {
+                    "prop1": {
+                        "value": "this is sync update!"
+                    },
+                    "prop2": {
+                        "entity": "StubEntityB",
+                        "ref": true,
+                        "properties": {
+                            "prop1": {
+                                "value": "this is sync update, Tom"
+                            }
+                        }
+                    }
+                }
+            },
+        ]).to.eql(source.updateEntities);
+        expect(entityStore.actions).is.empty;
+        expect(remoteEntityStore.actions).is.empty;
+
+        //    1. $remoteEntityStore invia la sua coda di azioni
+        //    2. $entityStore riceve la coda da $remoteEntityStore
+        //    3. $entityStore si sincronizza
+        //    4. $entityStore ritorna la lista di entity sincronizzate
+        //    5. $remoteEntityStore riceve la lista di entity sincronizzate
+        //    6. $remoteEntityStore si sincronizza
+    })
 });

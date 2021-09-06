@@ -86,7 +86,9 @@ export class EntityStore {
                     if(entities[entityClass]) {
                         sourceAction.entity.deserialize(entities[entityClass]);
         
-                        sourceAction.sync(this._sources[entityClass]);
+                        if(this._sources[entityClass]) {
+                            sourceAction.sync(this._sources[entityClass]);
+                        }
                     }
         
                     delete this._actions[key];
@@ -117,7 +119,9 @@ export class EntityStore {
             const entityClass = deserializedActions[key].entity.name;
 
             if(this._sources[entityClass]) {
-                deserializedActions[key].sync(this._sources[entityClass]);
+                if(this._sources[entityClass]) {
+                    deserializedActions[key].sync(this._sources[entityClass]);
+                }
 
                 entities[entityClass] = deserializedActions[key].entity.serialize();
             }
