@@ -1313,7 +1313,9 @@ describe('Broker', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
         });
 
         entityStore.syncTo(bridge);
@@ -1328,7 +1330,9 @@ describe('Broker', () => {
         entity.prop2.prop1 = "this is sync update, Tom";
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
         });
 
         entityStore.syncTo(bridge);
@@ -1485,7 +1489,9 @@ describe('Broker', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+
+            });
         });
 
         entityStore.syncTo(bridge);
@@ -1546,7 +1552,9 @@ describe('Broker', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
         });
 
         entityStore.syncTo(bridge);
@@ -1671,7 +1679,9 @@ describe('Broker', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+
+            });
         });
 
         entityStore.syncTo(bridge);
@@ -1715,7 +1725,9 @@ describe('Broker', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions);
+            remoteEntityStore.syncFrom(bridge, actions, () => {
+                
+            });
         });
 
         entityStore.syncTo(bridge);

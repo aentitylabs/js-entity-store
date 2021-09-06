@@ -60,40 +60,44 @@ export class EntityStore {
         }
     }
 
-    public syncTo(bridge: Bridge) {
-        const serializedActions: any = {};
+    public syncTo(bridge: Bridge): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const serializedActions: any = {};
 
-        for(const key in this._actions) {
-            const action: SourceAction = this._actions[key];
-            //$entityClass = get_class($action->getEntity());
-
-            //if(array_key_exists($entityClass, $this->sources)) {
-                action.sync(action.entity.source);
-            //}
-
-            serializedActions[key] = SourceActionFactory.serialize(action);
-        }
-
-        const entities = bridge.send(serializedActions);
-
-        while (Object.keys(this._actions).length > 0) {
-            const key = Object.keys(this._actions)[0];
-
-            const sourceAction: SourceAction = this._actions[key];
-
-            const entityClass = sourceAction.entity.name;
-
-            if(entities[entityClass]) {
-                sourceAction.entity.deserialize(entities[entityClass]);
-
-                sourceAction.sync(this._sources[entityClass]);
+            for(const key in this._actions) {
+                const action: SourceAction = this._actions[key];
+                //$entityClass = get_class($action->getEntity());
+    
+                //if(array_key_exists($entityClass, $this->sources)) {
+                    action.sync(action.entity.source);
+                //}
+    
+                serializedActions[key] = SourceActionFactory.serialize(action);
             }
+    
+            bridge.send(serializedActions, (entities: any) => {
+                while (Object.keys(this._actions).length > 0) {
+                    const key = Object.keys(this._actions)[0];
+        
+                    const sourceAction: SourceAction = this._actions[key];
+        
+                    const entityClass = sourceAction.entity.name;
+        
+                    if(entities[entityClass]) {
+                        sourceAction.entity.deserialize(entities[entityClass]);
+        
+                        sourceAction.sync(this._sources[entityClass]);
+                    }
+        
+                    delete this._actions[key];
+                }
 
-            delete this._actions[key];
-        }
+                resolve();
+            });
+        });
     }
 
-    public syncFrom(bridge: Bridge, receivedActions: any) {
+    public syncFrom(bridge: Bridge, receivedActions: any, onSync: any) {
         const deserializedActions: any = {};
         const entities: any = {};
 
@@ -120,6 +124,8 @@ export class EntityStore {
         }
 
         this.sync();
+
+        onSync();
 
         bridge.reply(entities);
     }

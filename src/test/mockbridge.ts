@@ -6,12 +6,12 @@ export class MockBridge extends Bridge {
     private _entitiesToReply: any = {};
 
 
-    public send(actions: any): any {
+    public send(actions: any, onReply: any): any {
         this._receivedActions = actions;
 
         this._onReceived(actions);
 
-        return this._entitiesToReply;
+        onReply(this._entitiesToReply);
     }
 
     public reply(entities: any) {
