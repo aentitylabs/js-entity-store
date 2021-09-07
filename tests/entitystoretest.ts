@@ -979,7 +979,7 @@ describe('Broker', () => {
         expect(remoteEntityStore.actions).is.empty;
     })
 
-    /*it('test delete entity from unrefered entity collection and sync with another entity store', () => {
+    it('test delete entity from unrefered entity collection and sync with another entity store', () => {
         const entityStore = new EntityStore();
         const remoteEntityStore = new EntityStore();
 
@@ -1028,36 +1028,11 @@ describe('Broker', () => {
         }).to.eql(remoteEntityStore.actions);
 
         source.loadedEntities = [
-            {
-                "entity": "StubEntityE",
-                "ref": false,
-                "collectionItem": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                },
-                "properties": [{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi1"
-                        }
-                    }
-                },{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi2"
-                        }
-                    }
-                }]
-            }
+            [{
+                "prop1": "hi1"
+            },{
+                "prop1": "hi2"
+            }]
         ];
 
         bridge.onReceived((actions: any) => {
@@ -1081,29 +1056,9 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         source.loadedEntities = [
-            null,
-            {
-                "entity": "StubEntityE",
-                "ref": false,
-                "collectionItem": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                },
-                "properties": [{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi1"
-                        }
-                    }
-                }]
-            }
+            [{
+                "prop1": "hi1"
+            }]
         ];
 
         bridge.onReceived((actions: any) => {
@@ -1117,33 +1072,13 @@ describe('Broker', () => {
         expect("hi1").to.eql(eEntity.get(0).prop1);
         expect("hi1").to.eql(remoteEEntity.get(0).prop1);
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },
-        ]).to.eql(source.deletedEntities);
+        expect([{
+            "prop1": "hi2"
+        },{
+            "prop1": "hi2"
+        },{
+            "prop1": "hi2"
+        }]).to.eql(source.deletedEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
     })
@@ -1201,26 +1136,12 @@ describe('Broker', () => {
             "StubEntityA::load": new LoadSourceAction(remoteEntity)
         }).to.eql(remoteEntityStore.actions);
 
-        source.loadedEntities = [
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync hello!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync, Tom!"
-                            }
-                        }
-                    }
-                }
+        source.loadedEntities = [{
+            "prop1": "this is sync hello!",
+            "prop2": {
+                "prop1": "this is sync, Tom!"
             }
-        ];
+        }];
 
         bridge.onReceived((actions: any) => {
             remoteEntityStore.syncFrom(bridge, actions, () => {
@@ -1252,27 +1173,13 @@ describe('Broker', () => {
         expect(entity.prop1).to.eql(remoteEntity.prop1);
         expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync update!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync update, Tom"
-                            }
-                        }
-                    }
-                }
-            },
-        ]).to.eql(source.updateEntities);
+        expect([{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
-    })*/
+    })
 });
