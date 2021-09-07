@@ -41,29 +41,17 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hi"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                }
+            "prop1": "hi",
+            "prop2": {
+                "prop1": ""
             }
         };
         source.loadedEntities = [sourceStubEntityA];
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
 
         entity.prop1 = "hello";
         entity.prop1 = "hello!";
@@ -75,26 +63,12 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hello!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "Tom"
-                            }
-                        }
-                    }
-                }
+        expect([{
+            "prop1": "hello!",
+            "prop2": {
+                "prop1": "Tom"
             }
-        ]).to.eql(source.updateEntities);
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -138,50 +112,24 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA: any = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hello!"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "Tom"
-                        }
-                    }
-                }
+            "prop1": "hello!",
+            "prop2": {
+                "prop1": "Tom"
             }
         };
         source.updatedEntity = sourceStubEntityA;
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "Tom"
-                            }
-                        }
-                    }
-                }
+        expect([{
+            "prop1": "hello",
+            "prop2": {
+                "prop1": "Tom"
             }
-        ]).to.eql(source.updateEntities);
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -216,29 +164,17 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hi"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "Tom"
-                        }
-                    }
-                }
+            "prop1": "hi",
+            "prop2": {
+                "prop1": "Tom"
             }
         };
         source.loadedEntities = [sourceStubEntityA];
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
 
         entity.prop2.prop1 = "Tom";
 
@@ -282,29 +218,17 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hi"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "Tom"
-                        }
-                    }
-                }
+            "prop1": "hi",
+            "prop2": {
+                "prop1": "Tom"
             }
         };
         source.loadedEntities = [sourceStubEntityA];
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
 
         entity.prop2 = EntityFactory.newEntity(entityStore, {
             "entity": "StubEntityB",
@@ -322,26 +246,12 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hi"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": ""
-                            }
-                        }
-                    }
-                }
+        expect([{
+            "prop1": "hi",
+            "prop2": {
+                "prop1": ""
             }
-        ]).to.eql(source.updateEntities);
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -376,29 +286,17 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hi"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "Tom"
-                        }
-                    }
-                }
+            "prop1": "hi",
+            "prop2": {
+                "prop1": "Tom"
             }
         };
         source.loadedEntities = [sourceStubEntityA];
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
 
         entity.prop1 = "hello";
         entity.delete();
@@ -410,26 +308,12 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "Tom"
-                            }
-                        }
-                    }
-                }
+        expect([{
+            "prop1": "hello",
+            "prop2": {
+                "prop1": "Tom"
             }
-        ]).to.eql(source.updateEntities);
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -459,45 +343,17 @@ describe('Broker', () => {
             "StubEntityC::load": new LoadSourceAction(cEntity)
         }).to.eql(entityStore.actions);
 
-        const sourceStubEntityC = {
-            "entity": "StubEntityC",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [
-                {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi1"
-                        }
-                    }
-                },
-                {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi2"
-                        }
-                    }
-                }
-            ]
-        };
+        const sourceStubEntityC = [{
+                "prop1": "hi1"
+            },{
+                "prop1": "hi2"
+        }];
         source.loadedEntities = [sourceStubEntityC];
 
         entityStore.sync();
 
-        expect(sourceStubEntityC["properties"][0]["properties"]["prop1"]["value"]).to.eql(cEntity.get(0).prop1);
-        expect(sourceStubEntityC["properties"][1]["properties"]["prop1"]["value"]).to.eql(cEntity.get(1).prop1);
+        expect(sourceStubEntityC[0]["prop1"]).to.eql(cEntity.get(0).prop1);
+        expect(sourceStubEntityC[1]["prop1"]).to.eql(cEntity.get(1).prop1);
 
         cEntity.get(1).prop1 = "Tom";
 
@@ -507,17 +363,9 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "Tom"
-                    }
-                }
-            }
-        ]).to.eql(source.updateEntities);
+        expect([{
+            "prop1": "Tom"
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -574,70 +422,27 @@ describe('Broker', () => {
         }).to.eql(entityStore.actions);
 
         const sourceStubEntityA = {
-            "entity": "StubEntityA",
-            "ref": false,
-            "properties": {
-                "prop1": {
-                    "value": "hi"
-                },
-                "prop2": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                }
+            "prop1": "hi",
+            "prop2": {
+                "prop1": ""
             }
         };
+        
         const sourceStubEntityD = {
-            "entity": "StubEntityD",
-            "ref": false,
-            "properties": {
-                "props": {
-                    "entity": "StubEntityC",
-                    "ref": true,
-                    "collectionItem": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": ""
-                            }
-                        }
-                    },
-                    "properties": [
-                        {
-                            "entity": "StubEntityB",
-                            "ref": true,
-                            "properties": {
-                                "prop1": {
-                                    "value": "hi1"
-                                }
-                            }
-                        },
-                        {
-                            "entity": "StubEntityB",
-                            "ref": true,
-                            "properties": {
-                                "prop1": {
-                                    "value": "hi2"
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
+            "props": [{
+                "prop1": "hi1"
+            },{
+                "prop1": "hi2"
+            }]
         };
         source.loadedEntities = [sourceStubEntityA, sourceStubEntityD];
 
         entityStore.sync();
 
-        expect(sourceStubEntityA["properties"]["prop1"]["value"]).to.eql(aEntity.prop1);
-        expect(sourceStubEntityA["properties"]["prop2"]["properties"]["prop1"]["value"]).to.eql(aEntity.prop2.prop1);
-        expect(sourceStubEntityD["properties"]["props"]["properties"][0]["properties"]["prop1"]["value"]).to.eql(dEntity.props.get(0).prop1);
-        expect(sourceStubEntityD["properties"]["props"]["properties"][1]["properties"]["prop1"]["value"]).to.eql(dEntity.props.get(1).prop1);
+        expect(sourceStubEntityA["prop1"]).to.eql(aEntity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(aEntity.prop2.prop1);
+        expect(sourceStubEntityD["props"][0]["prop1"]).to.eql(dEntity.props.get(0).prop1);
+        expect(sourceStubEntityD["props"][1]["prop1"]).to.eql(dEntity.props.get(1).prop1);
 
         aEntity.prop2.prop1 = "hello";
         dEntity.props.get(1).prop1 = "Tom";
@@ -649,35 +454,14 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hi"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "hello"
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "Tom"
-                    }
-                }
+        expect([{
+            "prop1": "hi",
+            "prop2": {
+                "prop1": "hello"
             }
-        ]).to.eql(source.updateEntities);
+        },{
+            "prop1": "Tom"
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -718,52 +502,21 @@ describe('Broker', () => {
             "StubEntityB::load": new LoadSourceAction(bEntity)
         }).to.eql(entityStore.actions);
 
-        const sourceStubEntityE = {
-            "entity": "StubEntityE",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            }]
-        };
+        const sourceStubEntityE = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        }];
         const sourceStubEntityB = {
-            "entity": "StubEntityB",
-            "ref": true,
-            "properties": {
-                "prop1": {
-                    "value": "hello"
-                }
-            }
+            "prop1": "hello"
         };
         source.loadedEntities = [sourceStubEntityE, sourceStubEntityB];
 
         entityStore.sync();
 
-        expect(sourceStubEntityE["properties"][0]["properties"]["prop1"]["value"]).to.eql(eEntity.get(0).prop1);
-        expect(sourceStubEntityE["properties"][1]["properties"]["prop1"]["value"]).to.eql(eEntity.get(1).prop1);
-        expect(sourceStubEntityB["properties"]["prop1"]["value"]).to.eql(bEntity.prop1);
+        expect(sourceStubEntityE[0]["prop1"]).to.eql(eEntity.get(0).prop1);
+        expect(sourceStubEntityE[1]["prop1"]).to.eql(eEntity.get(1).prop1);
+        expect(sourceStubEntityB["prop1"]).to.eql(bEntity.prop1);
 
         eEntity.get(0).prop1 = "Alice";
         eEntity.get(1).prop1 = "Tom";
@@ -777,35 +530,13 @@ describe('Broker', () => {
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "Alice"
-                    }
-                }
-            },
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "Tom"
-                    }
-                }
-            },
-            {
-                "entity": "StubEntityB",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "Hi"
-                    }
-                }
-            }
-        ]).to.eql(source.updateEntities);
+        expect([{
+                "prop1": "Alice"
+            },{
+                "prop1": "Tom"
+            },{
+                "prop1": "Hi"
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -835,42 +566,17 @@ describe('Broker', () => {
             "StubEntityC::load": new LoadSourceAction(cEntity),
         }).to.eql(entityStore.actions);
 
-        let sourceStubEntityC = {
-            "entity": "StubEntityC",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            }]
-        };
+        let sourceStubEntityC = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        }];
         source.loadedEntities = [sourceStubEntityC];
 
         entityStore.sync();
 
-        expect(sourceStubEntityC["properties"][0]["properties"]["prop1"]["value"]).to.eql(cEntity.get(0).prop1);
-        expect(sourceStubEntityC["properties"][1]["properties"]["prop1"]["value"]).to.eql(cEntity.get(1).prop1);
+        expect(sourceStubEntityC[0]["prop1"]).to.eql(cEntity.get(0).prop1);
+        expect(sourceStubEntityC[1]["prop1"]).to.eql(cEntity.get(1).prop1);
 
         expect(entityStore.actions).is.empty;
 
@@ -883,64 +589,25 @@ describe('Broker', () => {
             "StubEntityC::load": new LoadSourceAction(cEntity),
         }).to.eql(entityStore.actions);
 
-        sourceStubEntityC = {
-            "entity": "StubEntityC",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    }
-                }
-            }]
-        };
+        sourceStubEntityC = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        },{
+            "prop1": "hello"
+        }];
         source.loadedEntities = [sourceStubEntityC];
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    }
-                }
-            },
-        ]).to.eql(source.updateEntities);
+        expect([{
+                "prop1": "hello"
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
 
-        expect(sourceStubEntityC["properties"][0]["properties"]["prop1"]["value"]).to.eql(cEntity.get(0).prop1);
-        expect(sourceStubEntityC["properties"][1]["properties"]["prop1"]["value"]).to.eql(cEntity.get(1).prop1);
-        expect(sourceStubEntityC["properties"][2]["properties"]["prop1"]["value"]).to.eql(cEntity.get(2).prop1);
+        expect(sourceStubEntityC[0]["prop1"]).to.eql(cEntity.get(0).prop1);
+        expect(sourceStubEntityC[1]["prop1"]).to.eql(cEntity.get(1).prop1);
+        expect(sourceStubEntityC[2]["prop1"]).to.eql(cEntity.get(2).prop1);
     })
 
     it('test delete entity from entity collection', () => {
@@ -969,51 +636,20 @@ describe('Broker', () => {
             "StubEntityC::load": new LoadSourceAction(cEntity),
         }).to.eql(entityStore.actions);
 
-        let sourceStubEntityC = {
-            "entity": "StubEntityC",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi3"
-                    }
-                }
-            }]
-        };
+        let sourceStubEntityC = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        },{
+            "prop1": "hi3"
+        }];
         source.loadedEntities = [sourceStubEntityC];
 
         entityStore.sync();
 
-        expect(sourceStubEntityC["properties"][0]["properties"]["prop1"]["value"]).to.eql(cEntity.get(0).prop1);
-        expect(sourceStubEntityC["properties"][1]["properties"]["prop1"]["value"]).to.eql(cEntity.get(1).prop1);
-        expect(sourceStubEntityC["properties"][2]["properties"]["prop1"]["value"]).to.eql(cEntity.get(2).prop1);
+        expect(sourceStubEntityC[0]["prop1"]).to.eql(cEntity.get(0).prop1);
+        expect(sourceStubEntityC[1]["prop1"]).to.eql(cEntity.get(1).prop1);
+        expect(sourceStubEntityC[2]["prop1"]).to.eql(cEntity.get(2).prop1);
 
         expect(entityStore.actions).is.empty;
 
@@ -1024,51 +660,18 @@ describe('Broker', () => {
             "StubEntityC::load": new LoadSourceAction(cEntity),
         }).to.eql(entityStore.actions);
 
-        sourceStubEntityC = {
-            "entity": "StubEntityC",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi3"
-                    }
-                }
-            }]
-        };
+        sourceStubEntityC = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi3"
+        }];
         source.loadedEntities = [sourceStubEntityC];
 
         entityStore.sync();
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },
-        ]).to.eql(source.deletedEntities);
+        expect([{
+                "prop1": "hi2"
+        }]).to.eql(source.deletedEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -1099,51 +702,20 @@ describe('Broker', () => {
             "StubEntityE::load": new LoadSourceAction(eEntity)
         }).to.eql(entityStore.actions);
 
-        let sourceStubEntityE = {
-            "entity": "StubEntityE",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi3"
-                    }
-                }
-            }]
-        };
+        let sourceStubEntityE = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        },{
+            "prop1": "hi3"
+        }];
         source.loadedEntities = [sourceStubEntityE];
 
         entityStore.sync();
 
-        expect(sourceStubEntityE["properties"][0]["properties"]["prop1"]["value"]).to.eql(eEntity.get(0).prop1);
-        expect(sourceStubEntityE["properties"][1]["properties"]["prop1"]["value"]).to.eql(eEntity.get(1).prop1);
-        expect(sourceStubEntityE["properties"][2]["properties"]["prop1"]["value"]).to.eql(eEntity.get(2).prop1);
+        expect(sourceStubEntityE[0]["prop1"]).to.eql(eEntity.get(0).prop1);
+        expect(sourceStubEntityE[1]["prop1"]).to.eql(eEntity.get(1).prop1);
+        expect(sourceStubEntityE[2]["prop1"]).to.eql(eEntity.get(2).prop1);
 
         eEntity.remove(1);
 
@@ -1152,54 +724,21 @@ describe('Broker', () => {
             "StubEntityE::load": new LoadSourceAction(eEntity)
         }).to.eql(entityStore.actions);
 
-        sourceStubEntityE = {
-            "entity": "StubEntityE",
-            "ref": false,
-            "collectionItem": {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": ""
-                    }
-                }
-            },
-            "properties": [{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi1"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi3"
-                    }
-                }
-            }]
-        };
+        sourceStubEntityE = [{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi3"
+        }];
         source.loadedEntities = [sourceStubEntityE];
 
         entityStore.sync();
 
-        expect(sourceStubEntityE["properties"][0]["properties"]["prop1"]["value"]).to.eql(eEntity.get(0).prop1);
-        expect(sourceStubEntityE["properties"][1]["properties"]["prop1"]["value"]).to.eql(eEntity.get(1).prop1);
+        expect(sourceStubEntityE[0]["prop1"]).to.eql(eEntity.get(0).prop1);
+        expect(sourceStubEntityE[1]["prop1"]).to.eql(eEntity.get(1).prop1);
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hi2"
-                    }
-                }
-            },
-        ]).to.eql(source.deletedEntities);
+        expect([{
+            "prop1": "hi2"
+        }]).to.eql(source.deletedEntities);
         expect(entityStore.actions).is.empty;
     })
 
@@ -1257,60 +796,22 @@ describe('Broker', () => {
             "StubEntityA::load": new LoadSourceAction(remoteEntity)
         }).to.eql(remoteEntityStore.actions);
 
-        source.loadedEntities = [
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "hi!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": ""
-                            }
-                        }
-                    }
-                }
-            },{
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync hello!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync, Tom!"
-                            }
-                        }
-                    }
-                }
-            },{
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync hello!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync, Tom!"
-                            }
-                        }
-                    }
-                }
+        source.loadedEntities = [{
+            "prop1": "hi!",
+            "prop2": {
+                "prop1": ""
             }
-        ];
+        },{
+            "prop1": "this is sync hello!",
+            "prop2": {
+                "prop1": "this is sync, Tom!"
+            }
+        },{
+            "prop1": "this is sync hello!",
+            "prop2": {
+                "prop1": "this is sync, Tom!"
+            }
+        }];
 
         bridge.onReceived((actions: any) => {
             remoteEntityStore.syncFrom(bridge, actions, () => {
@@ -1342,60 +843,22 @@ describe('Broker', () => {
         expect(entity.prop1).to.eql(remoteEntity.prop1);
         expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
 
-        expect([
-            {
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync update!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync update, Tom"
-                            }
-                        }
-                    }
-                }
-            },{
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync update!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync update, Tom"
-                            }
-                        }
-                    }
-                }
-            },{
-                "entity": "StubEntityA",
-                "ref": false,
-                "properties": {
-                    "prop1": {
-                        "value": "this is sync update!"
-                    },
-                    "prop2": {
-                        "entity": "StubEntityB",
-                        "ref": true,
-                        "properties": {
-                            "prop1": {
-                                "value": "this is sync update, Tom"
-                            }
-                        }
-                    }
-                }
-            },
-        ]).to.eql(source.updateEntities);
+        expect([{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        },{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        },{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
 
@@ -1455,38 +918,11 @@ describe('Broker', () => {
             "StubEntityE::load": new LoadSourceAction(remoteEEntity)
         }).to.eql(remoteEntityStore.actions);
 
-        source.loadedEntities = [
-            {
-                "entity": "StubEntityE",
-                "ref": false,
-                "collectionItem": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                },
-                "properties": [{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi1"
-                        }
-                    }
-                },{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi2"
-                        }
-                    }
-                }]
-            }
-        ];
+        source.loadedEntities = [[{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        }]];
 
         bridge.onReceived((actions: any) => {
             remoteEntityStore.syncFrom(bridge, actions, () => {
@@ -1509,47 +945,13 @@ describe('Broker', () => {
             "StubEntityE::load": new LoadSourceAction(eEntity)
         }).to.eql(entityStore.actions);
 
-        source.loadedEntities = [
-            null,
-            {
-                "entity": "StubEntityE",
-                "ref": false,
-                "collectionItem": {
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": ""
-                        }
-                    }
-                },
-                "properties": [{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi1"
-                        }
-                    }
-                },{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hi2"
-                        }
-                    }
-                },{
-                    "entity": "StubEntityB",
-                    "ref": true,
-                    "properties": {
-                        "prop1": {
-                            "value": "hello"
-                        }
-                    }
-                }]
-            }
-        ];
+        source.loadedEntities = [[{
+            "prop1": "hi1"
+        },{
+            "prop1": "hi2"
+        },{
+            "prop1": "hello"
+        }]];
 
         bridge.onReceived((actions: any) => {
             remoteEntityStore.syncFrom(bridge, actions, () => {
@@ -1566,38 +968,18 @@ describe('Broker', () => {
         expect("hi2").to.eql(remoteEEntity.get(1).prop1);
         expect("hello").to.eql(remoteEEntity.get(2).prop1);
 
-        expect([
-            {
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    }
-                }
-            },{
-                "entity": "StubEntityB",
-                "ref": true,
-                "properties": {
-                    "prop1": {
-                        "value": "hello"
-                    }
-                }
-            },
-        ]).to.eql(source.updateEntities);
+        expect([{
+            "prop1": "hello"
+        },{
+            "prop1": "hello"
+        },{
+            "prop1": "hello"
+        }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
     })
 
-    it('test delete entity from unrefered entity collection and sync with another entity store', () => {
+    /*it('test delete entity from unrefered entity collection and sync with another entity store', () => {
         const entityStore = new EntityStore();
         const remoteEntityStore = new EntityStore();
 
@@ -1892,12 +1274,5 @@ describe('Broker', () => {
         ]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
-
-        //    1. $remoteEntityStore invia la sua coda di azioni
-        //    2. $entityStore riceve la coda da $remoteEntityStore
-        //    3. $entityStore si sincronizza
-        //    4. $entityStore ritorna la lista di entity sincronizzate
-        //    5. $remoteEntityStore riceve la lista di entity sincronizzate
-        //    6. $remoteEntityStore si sincronizza
-    })
+    })*/
 });

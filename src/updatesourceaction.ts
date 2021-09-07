@@ -1,4 +1,5 @@
 import { Entity } from "./entity";
+import { EntityFactory } from "./entityfactory";
 import { Source } from "./source";
 import { SourceAction } from "./sourceaction";
 
@@ -10,10 +11,14 @@ export class UpdateSourceAction extends SourceAction {
     public sync(source: Source): void {
         const serializedEntity = this.entity.serialize();
 
-        this.validateUpdate(serializedEntity);
+        const entityData = EntityFactory.buildEntityDataFromSchema(serializedEntity);
 
-        const serializedLoadedEntity = source.update(serializedEntity);
+        this.validateUpdate(entityData);
 
-        this.entity.deserialize(serializedLoadedEntity);
+        const updatedEntity = source.update(entityData);
+
+        const entitySchema = EntityFactory.buildEntitySchemaFromData(this.entity, updatedEntity);
+
+        this.entity.deserialize(entitySchema);
     }
 }

@@ -15,6 +15,7 @@ export class Entity {
     private _isItem: boolean = false;
     private _isCollection: boolean = false;
     protected _item: any = {};
+    protected _itemPrototype: Entity|undefined;
 
 
     public constructor(entityStore: EntityStore, name: string, ref?: Entity, item?: any)
@@ -41,6 +42,10 @@ export class Entity {
         if(!ref) {
             this._ref = this;
             this._entityStore.load(this);
+        }
+
+        if(this._item) {
+            this._itemPrototype = EntityFactory.newEntity(this._entityStore, this._item, this);
         }
     }
 
@@ -80,12 +85,24 @@ export class Entity {
         return this._isReferenced;
     }
 
+    public get isCollection() {
+        return this._isCollection;
+    }
+
     public set isItem(value: boolean) {
         this._isItem = value;
     }
 
     public get isItem() {
         return this._isItem;
+    }
+
+    public get item() {
+        return this._item;
+    }
+
+    public get itemPrototype() {
+        return this._itemPrototype;
     }
 
     public delete() {
