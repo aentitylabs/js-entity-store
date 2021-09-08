@@ -119,9 +119,7 @@ export class EntityStore {
             const entityClass = deserializedActions[key].entity.name;
 
             if(this._sources[entityClass]) {
-                if(this._sources[entityClass]) {
-                    deserializedActions[key].sync(this._sources[entityClass]);
-                }
+                deserializedActions[key].sync(this._sources[entityClass]);
 
                 entities[entityClass] = deserializedActions[key].entity.serialize();
             }

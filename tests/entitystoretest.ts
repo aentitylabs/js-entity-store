@@ -9,7 +9,7 @@ import { UpdateSourceAction } from '../src/updatesourceaction';
 import { DeleteSourceAction } from '../src/deletesourceaction';
 
 
-describe('Broker', () => {
+describe('Entity Store Test', () => {
     it('test load entity and update property', () => {
         const entityStore: EntityStore = new EntityStore();
 
