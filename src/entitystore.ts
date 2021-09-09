@@ -24,20 +24,20 @@ export class EntityStore {
     }
     
     public register(entity: Entity, source?: Source): void {
-        this._entities[entity.key] = entity;
+        this._entities[entity.getKey()] = entity;
 
         if(!source) {
-            let entitySource = this._sources[entity.name];
+            let entitySource = this._sources[entity.getName()];
             
             if(!entitySource) {
-                entity.source = new NullSource();    
+                entity.setSource(new NullSource());
             }
             else {
-                entity.source = this._sources[entity.name];
+                entity.setSource(this._sources[entity.getName()]);
             }
         }
         else {
-            entity.source = source;
+            entity.setSource(source);
         }
     }
 
@@ -54,7 +54,7 @@ export class EntityStore {
             if(array_key_exists($entityClass, $this->sources)) {
                 $sourceAction->sync($this->sources[get_class($sourceAction->getEntity())]);
             }*/
-            sourceAction.sync(sourceAction.entity.source);
+            sourceAction.sync(sourceAction.entity.getSource());
 
             delete this._actions[key];
         }
@@ -69,7 +69,7 @@ export class EntityStore {
                 //$entityClass = get_class($action->getEntity());
     
                 //if(array_key_exists($entityClass, $this->sources)) {
-                    action.sync(action.entity.source);
+                    action.sync(action.entity.getSource());
                 //}
     
                 serializedActions[key] = SourceActionFactory.serialize(action);
@@ -81,7 +81,7 @@ export class EntityStore {
         
                     const sourceAction: SourceAction = this._actions[key];
         
-                    const entityClass = sourceAction.entity.name;
+                    const entityClass = sourceAction.entity.getName();
         
                     if(entities[entityClass]) {
                         sourceAction.entity.deserialize(entities[entityClass]);
@@ -116,43 +116,49 @@ export class EntityStore {
 
             deserializedActions[key] = SourceActionFactory.deserialize(action, entity);
 
-            const entityClass = deserializedActions[key].entity.name;
+            const entityClass = deserializedActions[key].entity.getName();
 
             if(this._sources[entityClass]) {
                 deserializedActions[key].sync(this._sources[entityClass]);
 
-                entities[entityClass] = deserializedActions[key].entity.serialize();
+                entities[entityClass] = deserializedActions[key].entity;
             }
         }
 
-        this.sync();
-
         onSync();
 
-        bridge.reply(entities);
+        this.sync();
+
+        const serializedEntities: any = {};
+
+        for(const key in entities) {
+            serializedEntities[key] = entities[key].serialize();
+        }
+
+        bridge.reply(serializedEntities);
     }
 
     public load(entity: Entity): void {
-        if(entity.isReferenced && !entity.isItem && entity.ref) {
-            return this.load(entity.ref);
+        if(entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.load(entity.getRef());
         }
 
-        this._actions[entity.key + "::load"] = new LoadSourceAction(entity);
+        this._actions[entity.getKey() + "::load"] = new LoadSourceAction(entity);
     }
 
     public update(entity: Entity): void {
-        if(entity.isReferenced && !entity.isItem && entity.ref) {
-            return this.update(entity.ref);
+        if(entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.update(entity.getRef());
         }
 
-        this._actions[entity.key + "::update"] = new UpdateSourceAction(entity);
+        this._actions[entity.getKey() + "::update"] = new UpdateSourceAction(entity);
     }
 
     public delete(entity: Entity): void {
-        if(entity.isReferenced && !entity.isItem && entity.ref) {
-            return this.delete(entity.ref);
+        if(entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.delete(entity.getRef());
         }
 
-        this._actions[entity.key + "::delete"] = new DeleteSourceAction(entity);
+        this._actions[entity.getKey() + "::delete"] = new DeleteSourceAction(entity);
     }
 }

@@ -30,7 +30,7 @@ export class Entity {
         let source;
 
         if(ref != null && ref != undefined) {
-            this._key = ref.key + "=>" + this._key;
+            this._key = ref.getKey() + "=>" + this._key;
             this._isReferenced = true;
             source = ref._source;
         }
@@ -49,59 +49,63 @@ export class Entity {
         }
     }
 
-    public set key(value: string) {
+    public setKey(value: string) {
         this._key = value;
     }
 
-    public get key(): string {
+    public getKey(): string {
         return this._key;
     }
 
-    public get name(): string {
+    public setName(value: string) {
+        this._name = value;
+    }
+
+    public getName(): string {
         return this._name;
     }
 
-    public get ref(): Entity|undefined {
+    public getRef(): any {
         return this._ref;
     }
 
-    public get properties(): any {
+    public getProperties(): any {
         return this._properties;
     }
 
-    public get source() {
+    public getSource() {
         return this._source;
     }
 
-    public get entityStore() {
+    public getEntityStore() {
         return this._entityStore;
     }
 
-    public set source(source: Source) {
+    public setSource(source: Source) {
         this._source = source;
     }
 
-    public get isReferenced() {
+    public isReferenced() {
         return this._isReferenced;
     }
 
-    public get isCollection() {
+    public isCollection() {
         return this._isCollection;
     }
 
-    public set isItem(value: boolean) {
+    public setIsItem(value: boolean) {
         this._isItem = value;
     }
 
-    public get isItem() {
+    public isItem() {
         return this._isItem;
     }
 
-    public get item() {
+    public getItem() {
         return this._item;
     }
 
-    public get itemPrototype() {
+    public getItemPrototype(): any {
         return this._itemPrototype;
     }
 
@@ -110,27 +114,27 @@ export class Entity {
     }
 
     public get(index: number) {
-        return this.properties[index].value;
+        return this._properties[index].value;
     }
 
     public add(): Entity {
         const entity = EntityFactory.newEntity(this._entityStore, this._item, this);
 
-        entity.deserialize(this._item);
+        entity.deserialize(this.getItem());
 
-        const collectionSize = Object.keys(this._properties).length;
+        const collectionSize = Object.keys(this.getProperties()).length;
 
-        this._properties[collectionSize] = entity;
+        this.getProperties()[collectionSize] = entity;
 
-        entity._key = entity._key + "[" + (collectionSize) + "]";
+        entity.setKey(entity.getKey() + "[" + (collectionSize) + "]");
 
-        entity._isItem = true;
+        entity.setIsItem(true);
 
-        this.entityStore.register(entity, this._source);
+        this.getEntityStore().register(entity, this.getSource());
 
-        this._entityStore.update(entity);
+        this.getEntityStore().update(entity);
 
-        this._entityStore.load(this);
+        this.getEntityStore().load(this);
 
         return entity;
     }
@@ -138,27 +142,27 @@ export class Entity {
     public remove(index: number) {
         const toRemove = this.get(index);
 
-        this._entityStore.delete(toRemove);
+        this.getEntityStore().delete(toRemove);
 
-        this._entityStore.load(this);
+        this.getEntityStore().load(this);
     }
 
     public serialize(): any {
         const serializedEntity: any = {};
 
-        serializedEntity["entity"] = this._name;
+        serializedEntity["entity"] = this.getName();
         serializedEntity["properties"] = {};
-        serializedEntity["ref"] = this._isReferenced;
+        serializedEntity["ref"] = this.isReferenced();
 
-        for(var key in this._properties) {
-            serializedEntity["properties"][key] = this._properties[key].serialize();
+        for(var key in this.getProperties()) {
+            serializedEntity["properties"][key] = this.getProperties()[key].serialize();
         }
 
         return serializedEntity;
     }
     
     public deserialize(entity: any) {
-        this._name = entity["entity"];
+        this.setName(entity["entity"]);
 
         if(!entity["properties"]) {
             return;
@@ -167,20 +171,20 @@ export class Entity {
         let i = 0;
 
         for(let key in entity["properties"]) {
-            const entityProperty = new EntityProperty(this._entityStore, this);
+            const entityProperty = new EntityProperty(this.getEntityStore(), this);
 
             entityProperty.deserialize(entity["properties"][key]);
 
-            this._properties[key] = entityProperty;
+            this.getProperties()[key] = entityProperty;
 
-            if(this._isCollection) {
+            if(this.isCollection()) {
                 const entityItem = entityProperty.value;
 
-                entityItem.key = entityItem.key + "[" + i + "]";
+                entityItem.setKey(entityItem.getKey() + "[" + i + "]");
 
-                entityItem.isItem = true;
+                entityItem.setIsItem(true);
 
-                this._entityStore.register(entityItem, this.source);
+                this.getEntityStore().register(entityItem, this.getSource());
             }
 
             i++;

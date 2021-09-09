@@ -72,6 +72,68 @@ describe('Entity Store Test', () => {
         expect(entityStore.actions).is.empty;
     })
 
+    it('test load entity and update property with entity name property into schema', () => {
+        const entityStore: EntityStore = new EntityStore();
+
+        const source: MockSource = new MockSource();
+
+        entityStore.addSource("StubEntityA", source);
+
+        const entity: any = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": true,
+                    "properties": {
+                        "name": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+
+        expect({
+            "StubEntityA::load": new LoadSourceAction(entity)
+        }).to.eql(entityStore.actions);
+
+        const sourceStubEntityA = {
+            "prop1": "hi",
+            "prop2": {
+                "name": ""
+            }
+        };
+        source.loadedEntities = [sourceStubEntityA];
+
+        entityStore.sync();
+
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["name"]).to.eql(entity.prop2.name);
+
+        entity.prop1 = "hello";
+        entity.prop1 = "hello!";
+        entity.prop2.name = "Tom";
+
+        expect({
+            "StubEntityA::update": new UpdateSourceAction(entity)
+        }).to.eql(entityStore.actions);
+
+        entityStore.sync();
+
+        expect([{
+            "prop1": "hello!",
+            "prop2": {
+                "name": "Tom"
+            }
+        }]).to.eql(source.updateEntities);
+        expect(entityStore.actions).is.empty;
+    })
+
     it('test insert entity', () => {
         const entityStore = new EntityStore();
 
@@ -90,7 +152,7 @@ describe('Entity Store Test', () => {
                     "entity": "StubEntityB",
                     "ref": true,
                     "properties": {
-                        "prop1": {
+                        "name": {
                             "value": ""
                         }
                     }
@@ -105,7 +167,7 @@ describe('Entity Store Test', () => {
         entityStore.sync();
 
         entity.prop1 = "hello";
-        entity.prop2.prop1 = "Tom";
+        entity.prop2.name = "Tom";
 
         expect({
             "StubEntityA::update": new UpdateSourceAction(entity)
@@ -114,7 +176,7 @@ describe('Entity Store Test', () => {
         const sourceStubEntityA: any = {
             "prop1": "hello!",
             "prop2": {
-                "prop1": "Tom"
+                "name": "Tom"
             }
         };
         source.updatedEntity = sourceStubEntityA;
@@ -122,12 +184,12 @@ describe('Entity Store Test', () => {
         entityStore.sync();
 
         expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
-        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityA["prop2"]["name"]).to.eql(entity.prop2.name);
 
         expect([{
             "prop1": "hello",
             "prop2": {
-                "prop1": "Tom"
+                "name": "Tom"
             }
         }]).to.eql(source.updateEntities);
         expect(entityStore.actions).is.empty;

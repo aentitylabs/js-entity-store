@@ -23,20 +23,20 @@ export class EntityFactory {
     public static buildEntitySchemaFromData(entity: Entity, entityData: any): any {
         const serializedEntity: any = {};
 
-        serializedEntity["entity"] = entity.name;
+        serializedEntity["entity"] = entity.getName();
         serializedEntity["properties"] = {};
-        serializedEntity["ref"] = entity.isReferenced;
+        serializedEntity["ref"] = entity.isReferenced();
 
         for(let key in entityData) {
-            if(entity.isCollection === true) {
-                serializedEntity["collectionItem"] = entity.item;
+            if(entity.isCollection() === true) {
+                serializedEntity["collectionItem"] = entity.getItem();
 
-                if(entity.itemPrototype) {
-                    serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.itemPrototype, entityData[key]);
+                if(entity.getItemPrototype()) {
+                    serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.getItemPrototype(), entityData[key]);
                 }
             }
-            else if(entity.properties[key].isEntity === true) {
-                serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.properties[key].value, entityData[key]);
+            else if(entity.getProperties()[key].isEntity === true) {
+                serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.getProperties()[key].value, entityData[key]);
             }
             else {
                 serializedEntity["properties"][key] = {

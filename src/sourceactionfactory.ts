@@ -1,6 +1,5 @@
 import { DeleteSourceAction } from "./deletesourceaction";
 import { Entity } from "./entity";
-import { EntityStore } from "./entitystore";
 import { LoadSourceAction } from "./loadsourceaction";
 import { NullSourceAction } from "./nullsourceaction";
 import { SourceAction } from "./sourceaction";
@@ -11,10 +10,10 @@ export class SourceActionFactory {
         const serializedSourceAction: any = {};
 
         serializedSourceAction["type"] = sourceAction.type;
-        serializedSourceAction["entityKey"] = sourceAction.entity.key;
-        serializedSourceAction["entityType"] = sourceAction.entity.name;
+        serializedSourceAction["entityKey"] = sourceAction.entity.getKey();
+        serializedSourceAction["entityType"] = sourceAction.entity.getName();
         serializedSourceAction["entity"] = sourceAction.entity.serialize();
-        serializedSourceAction["refKey"] = sourceAction.entity.ref ? sourceAction.entity.ref.key : undefined;
+        serializedSourceAction["refKey"] = sourceAction.entity.getRef() ? sourceAction.entity.getRef().getKey() : undefined;
 
         return serializedSourceAction;
     }

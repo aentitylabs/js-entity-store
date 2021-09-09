@@ -1,17 +1,17 @@
 export class EntityHandler {
     get(target: any, property: any, receiver: any): any {
-        if(target.properties[property]) {
-            return target.properties[property].value;
+        if(target.getProperties()[property]) {
+            return target.getProperties()[property].value;
         }
 
         return target[property];
     }
 
     set(obj: any, property: any, value: any): boolean {
-        if(obj.properties[property]) {
-            obj.properties[property].value = value;
+        if(obj.getProperties()[property]) {
+            obj.getProperties()[property].value = value;
 
-            obj.entityStore.update(obj);
+            obj.getEntityStore().update(obj);
 
             return true;
         }
