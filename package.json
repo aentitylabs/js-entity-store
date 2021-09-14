@@ -2,7 +2,8 @@
   "name": "js-entity-store",
   "version": "1.0.0",
   "description": "JavaScript Entity Store",
-  "main": "index.js",
+  "main": "./dist/entitystore.js",
+  "types": "./lib/main.d.ts",
   "scripts": {
     "test": "mocha --require ts-node/register test/**/*.ts",
     "build": "tsc --build",

@@ -2,8 +2,8 @@ const path = require('path');
 
 module.exports = {
     context: path.resolve('src'),
-    devtool: 'inline-source-map',
-    entry: './entitystore.ts',
+    devtool: 'source-map',
+    entry: './main.ts',
     mode: 'production',
     module: {
         rules: [{
@@ -15,7 +15,7 @@ module.exports = {
     output: {
         filename: 'entitystore.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'EntityStore'
+        library: 'EntityStoreLib'
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js']

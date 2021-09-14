@@ -1,0 +1,37 @@
+import { EntityStore } from "./entitystore";
+import { Source } from "./source";
+export declare class Entity {
+    private _entityStore;
+    protected _properties: any;
+    private _name;
+    private _key;
+    private _ref;
+    private _isReferenced;
+    private _source;
+    private _isItem;
+    private _isCollection;
+    protected _item: any;
+    protected _itemPrototype: Entity | undefined;
+    constructor(entityStore: EntityStore, name: string, ref?: Entity, item?: any);
+    setKey(value: string): void;
+    getKey(): string;
+    setName(value: string): void;
+    getName(): string;
+    getRef(): any;
+    getProperties(): any;
+    getSource(): Source;
+    getEntityStore(): EntityStore;
+    setSource(source: Source): void;
+    isReferenced(): boolean;
+    isCollection(): boolean;
+    setIsItem(value: boolean): void;
+    isItem(): boolean;
+    getItem(): any;
+    getItemPrototype(): any;
+    delete(): void;
+    get(index: number): any;
+    add(): Entity;
+    remove(index: number): void;
+    serialize(): any;
+    deserialize(entity: any): void;
+}
