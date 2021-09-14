@@ -15,7 +15,11 @@ module.exports = {
     output: {
         filename: 'entitystore.js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'EntityStoreLib'
+        globalObject: 'this',
+        library: {
+            name: "jsentitystore",
+            type: "umd"
+        }
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.jsx', '.js']
