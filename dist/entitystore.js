@@ -1,2 +1,767 @@
-!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.jsentitystore=t():e.jsentitystore=t()}(this,(function(){return(()=>{"use strict";var e={534:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Bridge=void 0,t.Bridge=class{}},665:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DeleteSourceAction=void 0;const r=i(608),s=i(58);class o extends s.SourceAction{constructor(e){super("DeleteSourceAction",e)}sync(e){const t=this.entity.serialize(),i=r.EntityFactory.buildEntityDataFromSchema(t);this.validateDelete(i),e.delete(i)}}t.DeleteSourceAction=o},753:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Entity=void 0;const r=i(608),s=i(92),o=i(190);t.Entity=class{constructor(e,t,i,s){let n;this._properties={},this._isReferenced=!1,this._source=new o.NullSource,this._isItem=!1,this._isCollection=!1,this._item={},this._entityStore=e,this._name=t,this._key=t,this._item=s,this._isCollection=!!s,null!=i&&null!=i&&(this._key=i.getKey()+"=>"+this._key,this._isReferenced=!0,n=i._source),this._ref=i,this._entityStore.register(this,n),i||(this._ref=this,this._entityStore.load(this)),this._item&&(this._itemPrototype=r.EntityFactory.newEntity(this._entityStore,this._item,this))}setKey(e){this._key=e}getKey(){return this._key}setName(e){this._name=e}getName(){return this._name}getRef(){return this._ref}getProperties(){return this._properties}getSource(){return this._source}getEntityStore(){return this._entityStore}setSource(e){this._source=e}isReferenced(){return this._isReferenced}isCollection(){return this._isCollection}setIsItem(e){this._isItem=e}isItem(){return this._isItem}getItem(){return this._item}getItemPrototype(){return this._itemPrototype}delete(){this._entityStore.delete(this)}get(e){return this._properties[e].value}add(){const e=r.EntityFactory.newEntity(this._entityStore,this._item,this);e.deserialize(this.getItem());const t=Object.keys(this.getProperties()).length;return this.getProperties()[t]=e,e.setKey(e.getKey()+"["+t+"]"),e.setIsItem(!0),this.getEntityStore().register(e,this.getSource()),this.getEntityStore().update(e),this.getEntityStore().load(this),e}remove(e){const t=this.get(e);this.getEntityStore().delete(t),this.getEntityStore().load(this)}serialize(){const e={};for(var t in e.entity=this.getName(),e.properties={},e.ref=this.isReferenced(),this.getProperties())e.properties[t]=this.getProperties()[t].serialize();return e}deserialize(e){if(this.setName(e.entity),!e.properties)return;let t=0;for(let i in e.properties){const r=new s.EntityProperty(this.getEntityStore(),this);if(r.deserialize(e.properties[i]),this.getProperties()[i]=r,this.isCollection()){const e=r.value;e.setKey(e.getKey()+"["+t+"]"),e.setIsItem(!0),this.getEntityStore().register(e,this.getSource())}t++}}}},608:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.EntityFactory=void 0;const r=i(753),s=i(557);class o{static newEntity(e,t,i){let o=null;return o=t.collectionItem?new r.Entity(e,t.entity,i,t.collectionItem):new r.Entity(e,t.entity,i),o.deserialize(t),new Proxy(o,new s.EntityHandler)}static buildEntitySchemaFromData(e,t){const i={};i.entity=e.getName(),i.properties={},i.ref=e.isReferenced();for(let r in t)!0===e.isCollection()?(i.collectionItem=e.getItem(),e.getItemPrototype()&&(i.properties[r]=o.buildEntitySchemaFromData(e.getItemPrototype(),t[r]))):!0===e.getProperties()[r].isEntity?i.properties[r]=o.buildEntitySchemaFromData(e.getProperties()[r].value,t[r]):i.properties[r]={value:t[r]};return i}static buildEntityDataFromSchema(e){const t={};for(let i in e.properties)e.properties[i].entity?t[i]=o.buildEntityDataFromSchema(e.properties[i]):t[i]=e.properties[i].value;return t}}t.EntityFactory=o},557:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.EntityHandler=void 0,t.EntityHandler=class{get(e,t,i){return e.getProperties()[t]?e.getProperties()[t].value:e[t]}set(e,t,i){return e.getProperties()[t]?(e.getProperties()[t].value=i,e.getEntityStore().update(e),!0):(e[t]=i,!0)}}},92:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.EntityProperty=void 0;const r=i(608);t.EntityProperty=class{constructor(e,t){this._isEntity=!1,this._entityStore=e,this._ref=t}get isEntity(){return this._isEntity}get value(){return this._value}set value(e){this._value=e}serialize(){return!0===this._isEntity?this._value.serialize():{value:this._value}}deserialize(e){if(e.entity){const t=!0===e.ref?this._ref:void 0;return this._value=r.EntityFactory.newEntity(this._entityStore,e,t),this._isEntity=!0,void this._value.deserialize(e)}this._value=e.value}}},758:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.EntityStore=void 0;const r=i(665),s=i(608),o=i(328),n=i(190),c=i(172),u=i(246);t.EntityStore=class{constructor(){this._sources={},this._entities={},this._actions={}}get actions(){return this._actions}addSource(e,t){this._sources[e]=t}register(e,t){this._entities[e.getKey()]=e,t?e.setSource(t):this._sources[e.getName()]?e.setSource(this._sources[e.getName()]):e.setSource(new n.NullSource)}sync(){for(;Object.keys(this._actions).length>0;){const e=Object.keys(this._actions)[0],t=this._actions[e];t.sync(t.entity.getSource()),delete this._actions[e]}}syncTo(e){return new Promise(((t,i)=>{const r={};for(const e in this._actions){const t=this._actions[e];t.sync(t.entity.getSource()),r[e]=c.SourceActionFactory.serialize(t)}if(0===Object.keys(r).length)return t();e.send(r,(e=>{for(;Object.keys(this._actions).length>0;){const t=Object.keys(this._actions)[0],i=this._actions[t],r=i.entity.getName();e[r]&&(i.entity.deserialize(e[r]),this._sources[r]&&i.sync(this._sources[r])),delete this._actions[t]}t()}))}))}syncFrom(e,t,i){const r={},o={};for(const e in t){const i=t[e];this._entities[i.entityKey]||(this._entities[i.entityKey]=s.EntityFactory.newEntity(this,i.entity,this._entities[i.refKey]));const n=this._entities[i.entityKey];n.deserialize(i.entity),r[e]=c.SourceActionFactory.deserialize(i,n);const u=r[e].entity.getName();this._sources[u]&&(r[e].sync(this._sources[u]),o[u]=r[e].entity)}i(),this.sync();const n={};for(const e in o)n[e]=o[e].serialize();e.reply(n)}load(e){if(e.isReferenced()&&!e.isItem()&&e.getRef())return this.load(e.getRef());this._actions[e.getKey()+"::load"]=new o.LoadSourceAction(e)}update(e){if(e.isReferenced()&&!e.isItem()&&e.getRef())return this.update(e.getRef());this._actions[e.getKey()+"::update"]=new u.UpdateSourceAction(e)}delete(e){if(e.isReferenced()&&!e.isItem()&&e.getRef())return this.delete(e.getRef());this._actions[e.getKey()+"::delete"]=new r.DeleteSourceAction(e)}}},328:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.LoadSourceAction=void 0;const r=i(608),s=i(58);class o extends s.SourceAction{constructor(e){super("LoadSourceAction",e)}sync(e){const t=this.entity.serialize(),i=r.EntityFactory.buildEntityDataFromSchema(t),s=e.load(i);this.validateLoad(s);const o=r.EntityFactory.buildEntitySchemaFromData(this.entity,s);this.entity.deserialize(o)}}t.LoadSourceAction=o},190:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.NullSource=void 0;const r=i(886);class s extends r.Source{load(e){return e}update(e){return e}delete(e){}}t.NullSource=s},625:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.NullSourceAction=void 0;const r=i(58);class s extends r.SourceAction{constructor(e){super("NullSourceAction",e)}sync(e){throw new Error("NullSourceAction: method not implemented.")}}t.NullSourceAction=s},886:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Source=void 0,t.Source=class{}},58:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SourceAction=void 0,t.SourceAction=class{constructor(e,t){this._type=e,this._entity=t}get type(){return this._type}get entity(){return this._entity}set entity(e){this._entity=e}validateLoad(e){}validateUpdate(e){}validateDelete(e){}}},172:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SourceActionFactory=void 0;const r=i(665),s=i(328),o=i(625),n=i(246);t.SourceActionFactory=class{static serialize(e){const t={};return t.type=e.type,t.entityKey=e.entity.getKey(),t.entityType=e.entity.getName(),t.entity=e.entity.serialize(),t.refKey=e.entity.getRef()?e.entity.getRef().getKey():void 0,t}static deserialize(e,t){switch(e.type){case"LoadSourceAction":return new s.LoadSourceAction(t);case"UpdateSourceAction":return new n.UpdateSourceAction(t);case"DeleteSourceAction":return new r.DeleteSourceAction(t)}return new o.NullSourceAction(t)}}},246:(e,t,i)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.UpdateSourceAction=void 0;const r=i(608),s=i(58);class o extends s.SourceAction{constructor(e){super("UpdateSourceAction",e)}sync(e){const t=this.entity.serialize(),i=r.EntityFactory.buildEntityDataFromSchema(t);this.validateUpdate(i);const s=e.update(i),o=r.EntityFactory.buildEntitySchemaFromData(this.entity,s);this.entity.deserialize(o)}}t.UpdateSourceAction=o}},t={};function i(r){var s=t[r];if(void 0!==s)return s.exports;var o=t[r]={exports:{}};return e[r](o,o.exports,i),o.exports}var r={};return(()=>{var e=r;Object.defineProperty(e,"__esModule",{value:!0}),e.Bridge=e.Source=e.Entity=e.EntityFactory=e.EntityStore=void 0;const t=i(758);Object.defineProperty(e,"EntityStore",{enumerable:!0,get:function(){return t.EntityStore}});const s=i(608);Object.defineProperty(e,"EntityFactory",{enumerable:!0,get:function(){return s.EntityFactory}});const o=i(753);Object.defineProperty(e,"Entity",{enumerable:!0,get:function(){return o.Entity}});const n=i(886);Object.defineProperty(e,"Source",{enumerable:!0,get:function(){return n.Source}});const c=i(534);Object.defineProperty(e,"Bridge",{enumerable:!0,get:function(){return c.Bridge}})})(),r})()}));
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["jsentitystore"] = factory();
+	else
+		root["jsentitystore"] = factory();
+})(this, function() {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./bridge.ts":
+/*!*******************!*\
+  !*** ./bridge.ts ***!
+  \*******************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Bridge = void 0;
+class Bridge {
+}
+exports.Bridge = Bridge;
+
+
+/***/ }),
+
+/***/ "./deletesourceaction.ts":
+/*!*******************************!*\
+  !*** ./deletesourceaction.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DeleteSourceAction = void 0;
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+const sourceaction_1 = __webpack_require__(/*! ./sourceaction */ "./sourceaction.ts");
+class DeleteSourceAction extends sourceaction_1.SourceAction {
+    constructor(entity) {
+        super("DeleteSourceAction", entity);
+    }
+    sync(source) {
+        const serializedEntity = this.entity.serialize();
+        const entityData = entityfactory_1.EntityFactory.buildEntityDataFromSchema(serializedEntity);
+        this.validateDelete(entityData);
+        source.delete(entityData);
+    }
+}
+exports.DeleteSourceAction = DeleteSourceAction;
+
+
+/***/ }),
+
+/***/ "./entity.ts":
+/*!*******************!*\
+  !*** ./entity.ts ***!
+  \*******************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Entity = void 0;
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+const entityproperty_1 = __webpack_require__(/*! ./entityproperty */ "./entityproperty.ts");
+const nullsource_1 = __webpack_require__(/*! ./nullsource */ "./nullsource.ts");
+class Entity {
+    constructor(entityStore, name, ref, item) {
+        this._properties = {};
+        this._isReferenced = false;
+        this._source = new nullsource_1.NullSource();
+        this._isItem = false;
+        this._isCollection = false;
+        this._item = {};
+        this._entityStore = entityStore;
+        this._name = name;
+        this._key = name;
+        this._item = item;
+        this._isCollection = item ? true : false;
+        let source;
+        if (ref != null && ref != undefined) {
+            this._key = ref.getKey() + "=>" + this._key;
+            this._isReferenced = true;
+            source = ref._source;
+        }
+        this._ref = ref;
+        this._entityStore.register(this, source);
+        if (!ref) {
+            this._ref = this;
+            this._entityStore.load(this);
+        }
+        if (this._item) {
+            this._itemPrototype = entityfactory_1.EntityFactory.newEntity(this._entityStore, this._item, this);
+        }
+    }
+    setKey(value) {
+        this._key = value;
+    }
+    getKey() {
+        return this._key;
+    }
+    setName(value) {
+        this._name = value;
+    }
+    getName() {
+        return this._name;
+    }
+    getRef() {
+        return this._ref;
+    }
+    getProperties() {
+        return this._properties;
+    }
+    getSource() {
+        return this._source;
+    }
+    getEntityStore() {
+        return this._entityStore;
+    }
+    setSource(source) {
+        this._source = source;
+    }
+    isReferenced() {
+        return this._isReferenced;
+    }
+    isCollection() {
+        return this._isCollection;
+    }
+    setIsItem(value) {
+        this._isItem = value;
+    }
+    isItem() {
+        return this._isItem;
+    }
+    getItem() {
+        return this._item;
+    }
+    getItemPrototype() {
+        return this._itemPrototype;
+    }
+    delete() {
+        this._entityStore.delete(this);
+    }
+    get(index) {
+        return this._properties[index].value;
+    }
+    add() {
+        const entity = entityfactory_1.EntityFactory.newEntity(this._entityStore, this._item, this);
+        entity.deserialize(this.getItem());
+        const collectionSize = Object.keys(this.getProperties()).length;
+        this.getProperties()[collectionSize] = entity;
+        entity.setKey(entity.getKey() + "[" + (collectionSize) + "]");
+        entity.setIsItem(true);
+        this.getEntityStore().register(entity, this.getSource());
+        this.getEntityStore().update(entity);
+        this.getEntityStore().load(this);
+        return entity;
+    }
+    remove(index) {
+        const toRemove = this.get(index);
+        this.getEntityStore().delete(toRemove);
+        this.getEntityStore().load(this);
+    }
+    serialize() {
+        const serializedEntity = {};
+        serializedEntity["entity"] = this.getName();
+        serializedEntity["properties"] = {};
+        serializedEntity["ref"] = this.isReferenced();
+        for (var key in this.getProperties()) {
+            serializedEntity["properties"][key] = this.getProperties()[key].serialize();
+        }
+        return serializedEntity;
+    }
+    deserialize(entity) {
+        this.setName(entity["entity"]);
+        if (!entity["properties"]) {
+            return;
+        }
+        let i = 0;
+        for (let key in entity["properties"]) {
+            const entityProperty = new entityproperty_1.EntityProperty(this.getEntityStore(), this);
+            entityProperty.deserialize(entity["properties"][key]);
+            this.getProperties()[key] = entityProperty;
+            if (this.isCollection()) {
+                const entityItem = entityProperty.value;
+                entityItem.setKey(entityItem.getKey() + "[" + i + "]");
+                entityItem.setIsItem(true);
+                this.getEntityStore().register(entityItem, this.getSource());
+            }
+            i++;
+        }
+    }
+}
+exports.Entity = Entity;
+
+
+/***/ }),
+
+/***/ "./entityfactory.ts":
+/*!**************************!*\
+  !*** ./entityfactory.ts ***!
+  \**************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EntityFactory = void 0;
+const entity_1 = __webpack_require__(/*! ./entity */ "./entity.ts");
+const entityhandler_1 = __webpack_require__(/*! ./entityhandler */ "./entityhandler.ts");
+class EntityFactory {
+    static newEntity(entityStore, entity, ref) {
+        let newEntity = null;
+        if (entity["collectionItem"]) {
+            newEntity = new entity_1.Entity(entityStore, entity["entity"], ref, entity["collectionItem"]);
+        }
+        else {
+            newEntity = new entity_1.Entity(entityStore, entity["entity"], ref);
+        }
+        newEntity.deserialize(entity);
+        const entityProxy = new Proxy(newEntity, new entityhandler_1.EntityHandler());
+        return entityProxy;
+    }
+    static buildEntitySchemaFromData(entity, entityData) {
+        const serializedEntity = {};
+        serializedEntity["entity"] = entity.getName();
+        serializedEntity["properties"] = {};
+        serializedEntity["ref"] = entity.isReferenced();
+        for (let key in entityData) {
+            if (entity.isCollection() === true) {
+                serializedEntity["collectionItem"] = entity.getItem();
+                if (entity.getItemPrototype()) {
+                    serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.getItemPrototype(), entityData[key]);
+                }
+            }
+            else if (entity.getProperties()[key].isEntity === true) {
+                serializedEntity["properties"][key] = EntityFactory.buildEntitySchemaFromData(entity.getProperties()[key].value, entityData[key]);
+            }
+            else {
+                serializedEntity["properties"][key] = {
+                    "value": entityData[key]
+                };
+            }
+        }
+        return serializedEntity;
+    }
+    static buildEntityDataFromSchema(entitySchema) {
+        const entityData = {};
+        for (let key in entitySchema.properties) {
+            if (entitySchema.properties[key]["entity"]) {
+                entityData[key] = EntityFactory.buildEntityDataFromSchema(entitySchema.properties[key]);
+            }
+            else {
+                entityData[key] = entitySchema.properties[key]["value"];
+            }
+        }
+        return entityData;
+    }
+}
+exports.EntityFactory = EntityFactory;
+
+
+/***/ }),
+
+/***/ "./entityhandler.ts":
+/*!**************************!*\
+  !*** ./entityhandler.ts ***!
+  \**************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EntityHandler = void 0;
+class EntityHandler {
+    get(target, property, receiver) {
+        if (target.getProperties()[property]) {
+            return target.getProperties()[property].value;
+        }
+        return target[property];
+    }
+    set(obj, property, value) {
+        if (obj.getProperties()[property]) {
+            obj.getProperties()[property].value = value;
+            obj.getEntityStore().update(obj);
+            return true;
+        }
+        obj[property] = value;
+        return true;
+    }
+}
+exports.EntityHandler = EntityHandler;
+
+
+/***/ }),
+
+/***/ "./entityproperty.ts":
+/*!***************************!*\
+  !*** ./entityproperty.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EntityProperty = void 0;
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+class EntityProperty {
+    constructor(entityStore, ref) {
+        this._isEntity = false;
+        this._entityStore = entityStore;
+        this._ref = ref;
+    }
+    get isEntity() {
+        return this._isEntity;
+    }
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        this._value = value;
+    }
+    serialize() {
+        if (this._isEntity === true) {
+            return this._value.serialize();
+        }
+        return {
+            "value": this._value
+        };
+    }
+    deserialize(entityProperty) {
+        if (entityProperty["entity"]) {
+            const ref = entityProperty["ref"] === true ? this._ref : undefined;
+            this._value = entityfactory_1.EntityFactory.newEntity(this._entityStore, entityProperty, ref);
+            this._isEntity = true;
+            this._value.deserialize(entityProperty);
+            return;
+        }
+        this._value = entityProperty["value"];
+    }
+}
+exports.EntityProperty = EntityProperty;
+
+
+/***/ }),
+
+/***/ "./entitystore.ts":
+/*!************************!*\
+  !*** ./entitystore.ts ***!
+  \************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EntityStore = void 0;
+const deletesourceaction_1 = __webpack_require__(/*! ./deletesourceaction */ "./deletesourceaction.ts");
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+const loadsourceaction_1 = __webpack_require__(/*! ./loadsourceaction */ "./loadsourceaction.ts");
+const nullsource_1 = __webpack_require__(/*! ./nullsource */ "./nullsource.ts");
+const sourceactionfactory_1 = __webpack_require__(/*! ./sourceactionfactory */ "./sourceactionfactory.ts");
+const updatesourceaction_1 = __webpack_require__(/*! ./updatesourceaction */ "./updatesourceaction.ts");
+class EntityStore {
+    constructor() {
+        this._sources = {};
+        this._entities = {};
+        this._actions = {};
+    }
+    get actions() {
+        return this._actions;
+    }
+    addSource(entityName, source) {
+        this._sources[entityName] = source;
+    }
+    register(entity, source) {
+        this._entities[entity.getKey()] = entity;
+        if (!source) {
+            let entitySource = this._sources[entity.getName()];
+            if (!entitySource) {
+                entity.setSource(new nullsource_1.NullSource());
+            }
+            else {
+                entity.setSource(this._sources[entity.getName()]);
+            }
+        }
+        else {
+            entity.setSource(source);
+        }
+    }
+    sync() {
+        while (Object.keys(this._actions).length > 0) {
+            const key = Object.keys(this._actions)[0];
+            const sourceAction = this._actions[key];
+            //TODO: gestire entità con source a null (null pattern!?)
+            /*$entityClass = get_class($sourceAction->getEntity());
+
+            if(array_key_exists($entityClass, $this->sources)) {
+                $sourceAction->sync($this->sources[get_class($sourceAction->getEntity())]);
+            }*/
+            sourceAction.sync(sourceAction.entity.getSource());
+            delete this._actions[key];
+        }
+    }
+    syncTo(bridge) {
+        return new Promise((resolve, reject) => {
+            const serializedActions = {};
+            for (const key in this._actions) {
+                const action = this._actions[key];
+                //$entityClass = get_class($action->getEntity());
+                //if(array_key_exists($entityClass, $this->sources)) {
+                action.sync(action.entity.getSource());
+                //}
+                serializedActions[key] = sourceactionfactory_1.SourceActionFactory.serialize(action);
+            }
+            if (Object.keys(serializedActions).length === 0) {
+                return resolve();
+            }
+            bridge.send(serializedActions, (entities) => {
+                while (Object.keys(this._actions).length > 0) {
+                    const key = Object.keys(this._actions)[0];
+                    const sourceAction = this._actions[key];
+                    const entityClass = sourceAction.entity.getName();
+                    if (entities[entityClass]) {
+                        sourceAction.entity.deserialize(entities[entityClass]);
+                        if (this._sources[entityClass]) {
+                            sourceAction.sync(this._sources[entityClass]);
+                        }
+                    }
+                    delete this._actions[key];
+                }
+                resolve();
+            });
+        });
+    }
+    syncFrom(bridge, receivedActions, onSync) {
+        const deserializedActions = {};
+        const entities = {};
+        for (const key in receivedActions) {
+            const action = receivedActions[key];
+            if (!this._entities[action["entityKey"]]) {
+                this._entities[action["entityKey"]] = entityfactory_1.EntityFactory.newEntity(this, action["entity"], this._entities[action["refKey"]]);
+            }
+            const entity = this._entities[action["entityKey"]];
+            entity.deserialize(action["entity"]);
+            deserializedActions[key] = sourceactionfactory_1.SourceActionFactory.deserialize(action, entity);
+            const entityClass = deserializedActions[key].entity.getName();
+            if (this._sources[entityClass]) {
+                deserializedActions[key].sync(this._sources[entityClass]);
+                entities[entityClass] = deserializedActions[key].entity;
+            }
+        }
+        onSync();
+        this.sync();
+        const serializedEntities = {};
+        for (const key in entities) {
+            serializedEntities[key] = entities[key].serialize();
+        }
+        bridge.reply(serializedEntities);
+    }
+    load(entity) {
+        if (entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.load(entity.getRef());
+        }
+        this._actions[entity.getKey() + "::load"] = new loadsourceaction_1.LoadSourceAction(entity);
+    }
+    update(entity) {
+        if (entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.update(entity.getRef());
+        }
+        this._actions[entity.getKey() + "::update"] = new updatesourceaction_1.UpdateSourceAction(entity);
+    }
+    delete(entity) {
+        if (entity.isReferenced() && !entity.isItem() && entity.getRef()) {
+            return this.delete(entity.getRef());
+        }
+        this._actions[entity.getKey() + "::delete"] = new deletesourceaction_1.DeleteSourceAction(entity);
+    }
+}
+exports.EntityStore = EntityStore;
+
+
+/***/ }),
+
+/***/ "./loadsourceaction.ts":
+/*!*****************************!*\
+  !*** ./loadsourceaction.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LoadSourceAction = void 0;
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+const sourceaction_1 = __webpack_require__(/*! ./sourceaction */ "./sourceaction.ts");
+class LoadSourceAction extends sourceaction_1.SourceAction {
+    constructor(entity) {
+        super("LoadSourceAction", entity);
+    }
+    sync(source) {
+        const serializedEntity = this.entity.serialize();
+        const entityData = entityfactory_1.EntityFactory.buildEntityDataFromSchema(serializedEntity);
+        const loadedEntity = source.load(entityData);
+        this.validateLoad(loadedEntity);
+        const entitySchema = entityfactory_1.EntityFactory.buildEntitySchemaFromData(this.entity, loadedEntity);
+        this.entity.deserialize(entitySchema);
+    }
+}
+exports.LoadSourceAction = LoadSourceAction;
+
+
+/***/ }),
+
+/***/ "./nullsource.ts":
+/*!***********************!*\
+  !*** ./nullsource.ts ***!
+  \***********************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NullSource = void 0;
+const source_1 = __webpack_require__(/*! ./source */ "./source.ts");
+class NullSource extends source_1.Source {
+    load(entity) {
+        return entity;
+    }
+    update(entity) {
+        return entity;
+    }
+    delete(entity) {
+    }
+}
+exports.NullSource = NullSource;
+
+
+/***/ }),
+
+/***/ "./nullsourceaction.ts":
+/*!*****************************!*\
+  !*** ./nullsourceaction.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NullSourceAction = void 0;
+const sourceaction_1 = __webpack_require__(/*! ./sourceaction */ "./sourceaction.ts");
+class NullSourceAction extends sourceaction_1.SourceAction {
+    constructor(entity) {
+        super("NullSourceAction", entity);
+    }
+    sync(source) {
+        throw new Error("NullSourceAction: method not implemented.");
+    }
+}
+exports.NullSourceAction = NullSourceAction;
+
+
+/***/ }),
+
+/***/ "./source.ts":
+/*!*******************!*\
+  !*** ./source.ts ***!
+  \*******************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Source = void 0;
+class Source {
+}
+exports.Source = Source;
+
+
+/***/ }),
+
+/***/ "./sourceaction.ts":
+/*!*************************!*\
+  !*** ./sourceaction.ts ***!
+  \*************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SourceAction = void 0;
+class SourceAction {
+    constructor(type, entity) {
+        this._type = type;
+        this._entity = entity;
+    }
+    get type() {
+        return this._type;
+    }
+    get entity() {
+        return this._entity;
+    }
+    set entity(value) {
+        this._entity = value;
+    }
+    validateLoad(serializedEntity) {
+        /*$validators = $this->entity->getEntityStore()->getLoadValidators();
+
+        $entityClass = $this->getEntity()->name;
+
+        if(array_key_exists($entityClass, $validators)) {
+            $updateValidator = $validators[$entityClass];
+
+            if(!$updateValidator->isValid($serializedEntity)) {
+                throw new EntityLoadValidationException($updateValidator->getPropertyErrors());
+            }
+        }*/
+    }
+    validateUpdate(serializedEntity) {
+        /*$validators = $this->entity->getEntityStore()->getUpdateValidators();
+
+        $entityClass = $this->getEntity()->name;
+
+        if(array_key_exists($entityClass, $validators)) {
+            $updateValidator = $validators[$entityClass];
+
+            if(!$updateValidator->isValid($serializedEntity)) {
+                throw new EntityUpdateValidationException($updateValidator->getPropertyErrors());
+            }
+        }*/
+    }
+    validateDelete(serializedEntity) {
+        /*$validators = $this->entity->getEntityStore()->getDeleteValidators();
+
+        $entityClass = $this->getEntity()->name;
+
+        if(array_key_exists($entityClass, $validators)) {
+            $updateValidator = $validators[$entityClass];
+
+            if(!$updateValidator->isValid($serializedEntity)) {
+                throw new EntityDeleteValidationException($updateValidator->getPropertyErrors());
+            }
+        }*/
+    }
+}
+exports.SourceAction = SourceAction;
+
+
+/***/ }),
+
+/***/ "./sourceactionfactory.ts":
+/*!********************************!*\
+  !*** ./sourceactionfactory.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SourceActionFactory = void 0;
+const deletesourceaction_1 = __webpack_require__(/*! ./deletesourceaction */ "./deletesourceaction.ts");
+const loadsourceaction_1 = __webpack_require__(/*! ./loadsourceaction */ "./loadsourceaction.ts");
+const nullsourceaction_1 = __webpack_require__(/*! ./nullsourceaction */ "./nullsourceaction.ts");
+const updatesourceaction_1 = __webpack_require__(/*! ./updatesourceaction */ "./updatesourceaction.ts");
+class SourceActionFactory {
+    static serialize(sourceAction) {
+        const serializedSourceAction = {};
+        serializedSourceAction["type"] = sourceAction.type;
+        serializedSourceAction["entityKey"] = sourceAction.entity.getKey();
+        serializedSourceAction["entityType"] = sourceAction.entity.getName();
+        serializedSourceAction["entity"] = sourceAction.entity.serialize();
+        serializedSourceAction["refKey"] = sourceAction.entity.getRef() ? sourceAction.entity.getRef().getKey() : undefined;
+        return serializedSourceAction;
+    }
+    static deserialize(serializedSourceAction, entity) {
+        switch (serializedSourceAction["type"]) {
+            case "LoadSourceAction":
+                return new loadsourceaction_1.LoadSourceAction(entity);
+            case "UpdateSourceAction":
+                return new updatesourceaction_1.UpdateSourceAction(entity);
+            case "DeleteSourceAction":
+                return new deletesourceaction_1.DeleteSourceAction(entity);
+        }
+        return new nullsourceaction_1.NullSourceAction(entity);
+    }
+}
+exports.SourceActionFactory = SourceActionFactory;
+
+
+/***/ }),
+
+/***/ "./updatesourceaction.ts":
+/*!*******************************!*\
+  !*** ./updatesourceaction.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UpdateSourceAction = void 0;
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+const sourceaction_1 = __webpack_require__(/*! ./sourceaction */ "./sourceaction.ts");
+class UpdateSourceAction extends sourceaction_1.SourceAction {
+    constructor(entity) {
+        super("UpdateSourceAction", entity);
+    }
+    sync(source) {
+        const serializedEntity = this.entity.serialize();
+        const entityData = entityfactory_1.EntityFactory.buildEntityDataFromSchema(serializedEntity);
+        this.validateUpdate(entityData);
+        const updatedEntity = source.update(entityData);
+        const entitySchema = entityfactory_1.EntityFactory.buildEntitySchemaFromData(this.entity, updatedEntity);
+        this.entity.deserialize(entitySchema);
+    }
+}
+exports.UpdateSourceAction = UpdateSourceAction;
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+var exports = __webpack_exports__;
+/*!*****************!*\
+  !*** ./main.ts ***!
+  \*****************/
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Bridge = exports.Source = exports.Entity = exports.EntityFactory = exports.EntityStore = void 0;
+const entitystore_1 = __webpack_require__(/*! ./entitystore */ "./entitystore.ts");
+Object.defineProperty(exports, "EntityStore", ({ enumerable: true, get: function () { return entitystore_1.EntityStore; } }));
+const entityfactory_1 = __webpack_require__(/*! ./entityfactory */ "./entityfactory.ts");
+Object.defineProperty(exports, "EntityFactory", ({ enumerable: true, get: function () { return entityfactory_1.EntityFactory; } }));
+const entity_1 = __webpack_require__(/*! ./entity */ "./entity.ts");
+Object.defineProperty(exports, "Entity", ({ enumerable: true, get: function () { return entity_1.Entity; } }));
+const source_1 = __webpack_require__(/*! ./source */ "./source.ts");
+Object.defineProperty(exports, "Source", ({ enumerable: true, get: function () { return source_1.Source; } }));
+const bridge_1 = __webpack_require__(/*! ./bridge */ "./bridge.ts");
+Object.defineProperty(exports, "Bridge", ({ enumerable: true, get: function () { return bridge_1.Bridge; } }));
+
+})();
+
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
 //# sourceMappingURL=entitystore.js.map

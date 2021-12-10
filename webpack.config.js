@@ -4,7 +4,7 @@ module.exports = {
     context: path.resolve('src'),
     devtool: 'source-map',
     entry: './main.ts',
-    mode: 'production',
+    mode: 'development',
     module: {
         rules: [{
             test: /\.tsx?$/,
