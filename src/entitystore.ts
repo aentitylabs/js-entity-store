@@ -75,7 +75,7 @@ export class EntityStore {
                 serializedActions[key] = SourceActionFactory.serialize(action);
             }
 
-            if(Object.keys(this._actions).length === 0) {
+            if(Object.keys(serializedActions).length === 0) {
                 return resolve();
             }
     
