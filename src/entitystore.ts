@@ -74,6 +74,10 @@ export class EntityStore {
     
                 serializedActions[key] = SourceActionFactory.serialize(action);
             }
+
+            if(Object.keys(this._actions).length === 0) {
+                return resolve();
+            }
     
             bridge.send(serializedActions, (entities: any) => {
                 while (Object.keys(this._actions).length > 0) {
