@@ -362,6 +362,7 @@ const updatesourceaction_1 = __webpack_require__(/*! ./updatesourceaction */ "./
 class EntityStore {
     constructor() {
         this._sources = {};
+        this._bridges = {};
         this._entities = {};
         this._actions = {};
     }
@@ -370,6 +371,9 @@ class EntityStore {
     }
     addSource(entityName, source) {
         this._sources[entityName] = source;
+    }
+    addBridge(bridgeName, bridge) {
+        this._bridges[bridgeName] = bridge;
     }
     register(entity, source) {
         this._entities[entity.getKey()] = entity;
@@ -414,7 +418,7 @@ class EntityStore {
             if (Object.keys(serializedActions).length === 0) {
                 return resolve();
             }
-            bridge.send(serializedActions, (entities) => {
+            this._bridges[bridge].send(serializedActions, (entities) => {
                 while (Object.keys(this._actions).length > 0) {
                     const key = Object.keys(this._actions)[0];
                     const sourceAction = this._actions[key];
@@ -454,7 +458,7 @@ class EntityStore {
         for (const key in entities) {
             serializedEntities[key] = entities[key].serialize();
         }
-        bridge.reply(serializedEntities);
+        this._bridges[bridge].reply(serializedEntities);
     }
     load(entity) {
         if (entity.isReferenced() && !entity.isItem() && entity.getRef()) {

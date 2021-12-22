@@ -11,6 +11,7 @@ import { UpdateSourceAction } from "./updatesourceaction";
 
 export class EntityStore {
     private _sources: any = {};
+    private _bridges: any = {};
     private _entities: any = {};
     private _actions: any = {};
 
@@ -19,8 +20,12 @@ export class EntityStore {
         return this._actions;
     }
 
-    public addSource(entityName: any, source: any) {
+    public addSource(entityName: string, source: any) {
         this._sources[entityName] = source;
+    }
+
+    public addBridge(bridgeName: string, bridge: any) {
+        this._bridges[bridgeName] = bridge;
     }
     
     public register(entity: Entity, source?: Source): void {
@@ -60,7 +65,7 @@ export class EntityStore {
         }
     }
 
-    public syncTo(bridge: Bridge): Promise<void> {
+    public syncTo(bridge: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const serializedActions: any = {};
 
@@ -79,7 +84,7 @@ export class EntityStore {
                 return resolve();
             }
     
-            bridge.send(serializedActions, (entities: any) => {
+            this._bridges[bridge].send(serializedActions, (entities: any) => {
                 while (Object.keys(this._actions).length > 0) {
                     const key = Object.keys(this._actions)[0];
         
@@ -103,7 +108,7 @@ export class EntityStore {
         });
     }
 
-    public syncFrom(bridge: Bridge, receivedActions: any, onSync: any) {
+    public syncFrom(bridge: string, receivedActions: any, onSync: any) {
         const deserializedActions: any = {};
         const entities: any = {};
 
@@ -139,7 +144,7 @@ export class EntityStore {
             serializedEntities[key] = entities[key].serialize();
         }
 
-        bridge.reply(serializedEntities);
+        this._bridges[bridge].reply(serializedEntities);
     }
 
     public load(entity: Entity): void {

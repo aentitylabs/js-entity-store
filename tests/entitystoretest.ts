@@ -814,6 +814,9 @@ describe('Entity Store Test', () => {
         entityStore.addSource("StubEntityA", source);
         remoteEntityStore.addSource("StubEntityA", source);
 
+        entityStore.addBridge("MockBridge", bridge);
+        remoteEntityStore.addBridge("MockBridge", bridge);
+
         const entity = EntityFactory.newEntity(entityStore, {
             "entity": "StubEntityA",
             "ref": false,
@@ -876,12 +879,12 @@ describe('Entity Store Test', () => {
         }];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("this is sync hello!").to.eql(entity.prop1);
         expect("this is sync, Tom!").to.eql(entity.prop2.prop1);
@@ -893,12 +896,12 @@ describe('Entity Store Test', () => {
         entity.prop2.prop1 = "this is sync update, Tom";
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("this is sync update!").to.eql(entity.prop1);
         expect("this is sync update, Tom").to.eql(entity.prop2.prop1);
@@ -944,6 +947,9 @@ describe('Entity Store Test', () => {
         remoteEntityStore.addSource("StubEntityE", source);
         remoteEntityStore.addSource("StubEntityB", source);
 
+        entityStore.addBridge("MockBridge", bridge);
+        remoteEntityStore.addBridge("MockBridge", bridge);
+
         const eEntity = EntityFactory.newEntity(entityStore, {
             "entity": "StubEntityE",
             "ref": false,
@@ -987,12 +993,12 @@ describe('Entity Store Test', () => {
         }]];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("hi1").to.eql(eEntity.get(0).prop1);
         expect("hi2").to.eql(eEntity.get(1).prop1);
@@ -1016,12 +1022,12 @@ describe('Entity Store Test', () => {
         }]];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("hi1").to.eql(eEntity.get(0).prop1);
         expect("hi2").to.eql(eEntity.get(1).prop1);
@@ -1052,6 +1058,9 @@ describe('Entity Store Test', () => {
         entityStore.addSource("StubEntityB", source);
         remoteEntityStore.addSource("StubEntityE", source);
         remoteEntityStore.addSource("StubEntityB", source);
+
+        entityStore.addBridge("MockBridge", bridge);
+        remoteEntityStore.addBridge("MockBridge", bridge);
 
         const eEntity = EntityFactory.newEntity(entityStore, {
             "entity": "StubEntityE",
@@ -1098,12 +1107,12 @@ describe('Entity Store Test', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("hi1").to.eql(eEntity.get(0).prop1);
         expect("hi2").to.eql(eEntity.get(1).prop1);
@@ -1124,12 +1133,12 @@ describe('Entity Store Test', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("hi1").to.eql(eEntity.get(0).prop1);
         expect("hi1").to.eql(remoteEEntity.get(0).prop1);
@@ -1153,6 +1162,9 @@ describe('Entity Store Test', () => {
         const bridge = new MockBridge();
 
         remoteEntityStore.addSource("StubEntityA", source);
+
+        entityStore.addBridge("MockBridge", bridge);
+        remoteEntityStore.addBridge("MockBridge", bridge);
 
         const entity = EntityFactory.newEntity(entityStore, {
             "entity": "StubEntityA",
@@ -1206,12 +1218,12 @@ describe('Entity Store Test', () => {
         }];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("this is sync hello!").to.eql(entity.prop1);
         expect("this is sync, Tom!").to.eql(entity.prop2.prop1);
@@ -1223,12 +1235,12 @@ describe('Entity Store Test', () => {
         entity.prop2.prop1 = "this is sync update, Tom";
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom(bridge, actions, () => {
+            remoteEntityStore.syncFrom("MockBridge", actions, () => {
                 
             });
         });
 
-        entityStore.syncTo(bridge);
+        entityStore.syncTo("MockBridge");
 
         expect("this is sync update!").to.eql(entity.prop1);
         expect("this is sync update, Tom").to.eql(entity.prop2.prop1);
