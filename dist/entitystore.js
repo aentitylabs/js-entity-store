@@ -22,6 +22,12 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Bridge = void 0;
 class Bridge {
+    constructor(data) {
+        this._data = data;
+    }
+    get data() {
+        return this._data;
+    }
 }
 exports.Bridge = Bridge;
 
@@ -571,6 +577,12 @@ exports.NullSourceAction = NullSourceAction;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Source = void 0;
 class Source {
+    constructor(data) {
+        this._data = data;
+    }
+    get data() {
+        return this._data;
+    }
 }
 exports.Source = Source;
 
