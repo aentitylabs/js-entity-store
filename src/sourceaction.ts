@@ -11,7 +11,7 @@ export abstract class SourceAction {
         this._entity = entity;
     }
 
-    public abstract sync(source: Source): void;
+    public abstract sync(source: Source, onSync: any): void;
 
     public get type() {
         return this._type;

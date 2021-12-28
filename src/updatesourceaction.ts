@@ -8,17 +8,19 @@ export class UpdateSourceAction extends SourceAction {
         super("UpdateSourceAction", entity);
     }
 
-    public sync(source: Source): void {
+    public sync(source: Source, onSync: any): void {
         const serializedEntity = this.entity.serialize();
 
         const entityData = EntityFactory.buildEntityDataFromSchema(serializedEntity);
 
         this.validateUpdate(entityData);
 
-        const updatedEntity = source.update(entityData);
+        source.update(entityData, (updatedEntity: any) => {
+            const entitySchema = EntityFactory.buildEntitySchemaFromData(this.entity, updatedEntity);
 
-        const entitySchema = EntityFactory.buildEntitySchemaFromData(this.entity, updatedEntity);
+            this.entity.deserialize(entitySchema);
 
-        this.entity.deserialize(entitySchema);
+            onSync();
+        });
     }
 }

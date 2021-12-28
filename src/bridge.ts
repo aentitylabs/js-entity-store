@@ -10,6 +10,6 @@ export abstract class Bridge {
         return this._data;
     }
 
-    public abstract send(actions: any, onReply: any): any;
-    public abstract reply(entities: any): void;
+    public abstract send(actions: any, onSend: any): any;
+    public abstract reply(entities: any, onReply: any): void;
 }

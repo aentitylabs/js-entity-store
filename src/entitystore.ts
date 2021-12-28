@@ -46,105 +46,74 @@ export class EntityStore {
         }
     }
 
-    public sync() {
-        while (Object.keys(this._actions).length > 0) {
-            const key = Object.keys(this._actions)[0];
-
-            const sourceAction: SourceAction = this._actions[key];
-
-            //TODO: gestire entità con source a null (null pattern!?)
-
-            /*$entityClass = get_class($sourceAction->getEntity());
-
-            if(array_key_exists($entityClass, $this->sources)) {
-                $sourceAction->sync($this->sources[get_class($sourceAction->getEntity())]);
-            }*/
-            sourceAction.sync(sourceAction.entity.getSource());
-
-            delete this._actions[key];
-        }
-    }
-
-    public syncTo(bridge: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            const serializedActions: any = {};
-
-            for(const key in this._actions) {
-                const action: SourceAction = this._actions[key];
-                //$entityClass = get_class($action->getEntity());
-    
-                //if(array_key_exists($entityClass, $this->sources)) {
-                    action.sync(action.entity.getSource());
-                //}
-    
-                serializedActions[key] = SourceActionFactory.serialize(action);
+    public sync(onSync?: any): void {
+        if(Object.keys(this._actions).length === 0) {
+            if(onSync) {
+                onSync();
             }
 
+            return;
+        }
+
+        const key = Object.keys(this._actions)[0];
+
+        const sourceAction: SourceAction = this._actions[key];
+
+        //TODO: gestire entità con source a null (null pattern!?)
+
+        sourceAction.sync(sourceAction.entity.getSource(), () => {
+            delete this._actions[key];
+
+            this.sync(onSync);
+        });
+    }
+
+    public syncTo(bridge: string, onSync?: any): void {
+        const serializedActions: any = {};
+
+        this.serializeSourceAction(serializedActions, 0, () => {
             if(Object.keys(serializedActions).length === 0) {
-                return resolve();
+                if(onSync) {
+                    onSync();
+                }
+
+                return;
             }
     
             this._bridges[bridge].send(serializedActions, (entities: any) => {
-                while (Object.keys(this._actions).length > 0) {
-                    const key = Object.keys(this._actions)[0];
-        
-                    const sourceAction: SourceAction = this._actions[key];
-        
-                    const entityClass = sourceAction.entity.getName();
-        
-                    if(entities[entityClass]) {
-                        sourceAction.entity.deserialize(entities[entityClass]);
-        
-                        if(this._sources[entityClass]) {
-                            sourceAction.sync(this._sources[entityClass]);
-                        }
+                this.syncSourceAction(entities, () => {
+                    if(onSync) {
+                        onSync();
                     }
-        
-                    delete this._actions[key];
-                }
-
-                resolve();
+                });
             });
         });
     }
 
-    public syncFrom(bridge: string, receivedActions: any, onSync: any) {
+    public syncFrom(bridge: string, receivedActions: any, onSync?: any, onReply?: any) {
         const deserializedActions: any = {};
         const entities: any = {};
 
-        for(const key in receivedActions) {
-            const action: any = receivedActions[key];
-
-            if(!this._entities[action["entityKey"]]) {
-                this._entities[action["entityKey"]] = EntityFactory.newEntity(this, action["entity"], this._entities[action["refKey"]]);
+        this.deserializeSourceAction(deserializedActions, entities, receivedActions, 0, () => {
+            if(onSync) {
+                onSync();
             }
 
-            const entity = this._entities[action["entityKey"]];
-
-            entity.deserialize(action["entity"]);
-
-            deserializedActions[key] = SourceActionFactory.deserialize(action, entity);
-
-            const entityClass = deserializedActions[key].entity.getName();
-
-            if(this._sources[entityClass]) {
-                deserializedActions[key].sync(this._sources[entityClass]);
-
-                entities[entityClass] = deserializedActions[key].entity;
-            }
-        }
-
-        onSync();
-
-        this.sync();
-
-        const serializedEntities: any = {};
-
-        for(const key in entities) {
-            serializedEntities[key] = entities[key].serialize();
-        }
-
-        this._bridges[bridge].reply(serializedEntities);
+            this.sync(() => {
+                const serializedEntities: any = {};
+    
+                for(const key in entities) {
+                    serializedEntities[key] = entities[key].serialize();
+                }
+        
+                //TODO: send e reply del bridge devono essere
+                this._bridges[bridge].reply(serializedEntities, () => {
+                    if(onReply) {
+                        onReply();
+                    }
+                });
+            });
+        });
     }
 
     public load(entity: Entity): void {
@@ -169,5 +138,97 @@ export class EntityStore {
         }
 
         this._actions[entity.getKey() + "::delete"] = new DeleteSourceAction(entity);
+    }
+
+    private serializeSourceAction(serializedActions: any, from: number, onSync: any) {
+        if(from >= Object.keys(this._actions).length) {
+            if(onSync) {
+                onSync();
+            }
+
+            return;
+        }
+
+        const key = Object.keys(this._actions)[from];
+
+        const action: SourceAction = this._actions[key];
+
+        action.sync(action.entity.getSource(), () => {
+            serializedActions[key] = SourceActionFactory.serialize(action);
+
+            this.serializeSourceAction(serializedActions, from + 1, onSync);
+        });
+    }
+
+    private deserializeSourceAction(deserializedActions: any, entities: any, actions: any, from: number, onSync: any) {
+        if(from >= Object.keys(actions).length) {
+            if(onSync) {
+                onSync();
+            }
+
+            return;
+        }
+
+        const key = Object.keys(actions)[from];
+
+        const action: any = actions[key];
+
+        if(!this._entities[action["entityKey"]]) {
+            this._entities[action["entityKey"]] = EntityFactory.newEntity(this, action["entity"], this._entities[action["refKey"]]);
+        }
+
+        const entity = this._entities[action["entityKey"]];
+
+        entity.deserialize(action["entity"]);
+
+        deserializedActions[key] = SourceActionFactory.deserialize(action, entity);
+
+        const entityClass = deserializedActions[key].entity.getName();
+
+        if(this._sources[entityClass]) {
+            deserializedActions[key].sync(this._sources[entityClass], () => {
+                entities[entityClass] = deserializedActions[key].entity;
+
+                this.deserializeSourceAction(deserializedActions, entities, actions, from + 1, onSync);
+            });
+
+            return;
+        }
+
+        this.deserializeSourceAction(deserializedActions, entities, actions, from + 1, onSync);
+    }
+
+    private syncSourceAction(entities: any, onSync?: any) {
+        if(Object.keys(this._actions).length === 0) {
+            if(onSync) {
+                onSync();
+            }
+
+            return;
+        }
+
+        const key = Object.keys(this._actions)[0];
+
+        const sourceAction: SourceAction = this._actions[key];
+
+        const entityClass = sourceAction.entity.getName();
+            
+        if(entities[entityClass]) {
+            sourceAction.entity.deserialize(entities[entityClass]);
+
+            if(this._sources[entityClass]) {
+                sourceAction.sync(this._sources[entityClass], () => {
+                    delete this._actions[key];
+
+                    this.syncSourceAction(entities, onSync);
+                });
+
+                return;
+            }
+        }
+
+        delete this._actions[key];
+
+        this.syncSourceAction(entities, onSync);
     }
 }

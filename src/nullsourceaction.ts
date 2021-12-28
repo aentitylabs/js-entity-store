@@ -7,7 +7,7 @@ export class NullSourceAction extends SourceAction {
         super("NullSourceAction", entity);
     }
 
-    public sync(source: Source): void {
+    public sync(source: Source): Promise<void> {
         throw new Error("NullSourceAction: method not implemented.");
     }
 }

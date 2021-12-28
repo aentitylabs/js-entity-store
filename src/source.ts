@@ -10,7 +10,7 @@ export abstract class Source {
         return this._data;
     }
     
-    public abstract load(entity: any): any;
-    public abstract update(entity: any): any;
-    public abstract delete(entity: any): void;
+    public abstract load(entity: any, onLoad: any): void;
+    public abstract update(entity: any, onUpdate: any): void;
+    public abstract delete(entity: any, onDelete: any): void;
 }

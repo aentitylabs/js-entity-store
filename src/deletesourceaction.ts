@@ -8,13 +8,13 @@ export class DeleteSourceAction extends SourceAction {
         super("DeleteSourceAction", entity);
     }
 
-    public sync(source: Source): void {
+    public sync(source: Source, onSync: any): void {
         const serializedEntity = this.entity.serialize();
 
         const entityData = EntityFactory.buildEntityDataFromSchema(serializedEntity);
 
         this.validateDelete(entityData);
 
-        source.delete(entityData);
+        source.delete(entityData, onSync);
     }
 }

@@ -879,9 +879,7 @@ describe('Entity Store Test', () => {
         }];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -896,9 +894,7 @@ describe('Entity Store Test', () => {
         entity.prop2.prop1 = "this is sync update, Tom";
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -993,9 +989,7 @@ describe('Entity Store Test', () => {
         }]];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -1022,9 +1016,7 @@ describe('Entity Store Test', () => {
         }]];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -1107,9 +1099,7 @@ describe('Entity Store Test', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -1133,9 +1123,7 @@ describe('Entity Store Test', () => {
         ];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -1218,9 +1206,7 @@ describe('Entity Store Test', () => {
         }];
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
@@ -1235,9 +1221,7 @@ describe('Entity Store Test', () => {
         entity.prop2.prop1 = "this is sync update, Tom";
 
         bridge.onReceived((actions: any) => {
-            remoteEntityStore.syncFrom("MockBridge", actions, () => {
-                
-            });
+            remoteEntityStore.syncFrom("MockBridge", actions);
         });
 
         entityStore.syncTo("MockBridge");
