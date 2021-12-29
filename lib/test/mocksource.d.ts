@@ -5,9 +5,9 @@ export declare class MockSource extends Source {
     private _updatedEntities;
     private _deletedEntities;
     private _updatedEntity;
-    load(entity: any): any;
-    update(entity: any): any;
-    delete(entity: any): void;
+    load(entity: any, onLoad: any): void;
+    update(entity: any, onUpdate: any): void;
+    delete(entity: any, onDelete: any): void;
     set loadedEntities(loadedEntities: any[]);
     get updateEntities(): any[];
     get deletedEntities(): any[];

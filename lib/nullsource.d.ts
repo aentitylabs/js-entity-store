@@ -1,6 +1,6 @@
 import { Source } from "./source";
 export declare class NullSource extends Source {
-    load(entity: any): any;
-    update(entity: any): any;
-    delete(entity: any): void;
+    load(entity: any, onLoad: any): void;
+    update(entity: any, onUpdate: any): void;
+    delete(entity: any, onDelete: any): void;
 }

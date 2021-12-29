@@ -3,8 +3,8 @@ export declare class MockBridge extends Bridge {
     private _onReceived;
     private _receivedActions;
     private _entitiesToReply;
-    send(actions: any, onReply: any): any;
-    reply(entities: any): void;
+    send(actions: any, onSend: any): any;
+    reply(entities: any, onReply: any): void;
     onReceived(onReceived: any): void;
     get receivedActions(): any;
 }

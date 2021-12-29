@@ -2,7 +2,7 @@ export declare abstract class Source {
     private _data;
     constructor(data?: any);
     protected get data(): any;
-    abstract load(entity: any): any;
-    abstract update(entity: any): any;
-    abstract delete(entity: any): void;
+    abstract load(entity: any, onLoad: any): void;
+    abstract update(entity: any, onUpdate: any): void;
+    abstract delete(entity: any, onDelete: any): void;
 }

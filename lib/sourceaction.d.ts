@@ -4,7 +4,7 @@ export declare abstract class SourceAction {
     private _type;
     private _entity;
     constructor(type: string, entity: Entity);
-    abstract sync(source: Source): void;
+    abstract sync(source: Source, onSync: any): void;
     get type(): string;
     get entity(): Entity;
     set entity(value: Entity);
