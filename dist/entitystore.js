@@ -429,19 +429,18 @@ class EntityStore {
             });
         });
     }
-    syncFrom(bridge, receivedActions, onSync, onReply) {
+    syncFrom(bridge, receivedActions, onDeserialize, onReply) {
         const deserializedActions = {};
         const entities = {};
         this.deserializeSourceAction(deserializedActions, entities, receivedActions, 0, () => {
-            if (onSync) {
-                onSync();
+            if (onDeserialize) {
+                onDeserialize();
             }
             this.sync(() => {
                 const serializedEntities = {};
                 for (const key in entities) {
                     serializedEntities[key] = entities[key].serialize();
                 }
-                //TODO: send e reply del bridge devono essere
                 this._bridges[bridge].reply(serializedEntities, () => {
                     if (onReply) {
                         onReply();

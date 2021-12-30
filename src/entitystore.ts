@@ -90,13 +90,13 @@ export class EntityStore {
         });
     }
 
-    public syncFrom(bridge: string, receivedActions: any, onSync?: any, onReply?: any) {
+    public syncFrom(bridge: string, receivedActions: any, onDeserialize?: any, onReply?: any) {
         const deserializedActions: any = {};
         const entities: any = {};
 
         this.deserializeSourceAction(deserializedActions, entities, receivedActions, 0, () => {
-            if(onSync) {
-                onSync();
+            if(onDeserialize) {
+                onDeserialize();
             }
 
             this.sync(() => {
@@ -106,7 +106,6 @@ export class EntityStore {
                     serializedEntities[key] = entities[key].serialize();
                 }
         
-                //TODO: send e reply del bridge devono essere
                 this._bridges[bridge].reply(serializedEntities, () => {
                     if(onReply) {
                         onReply();
@@ -177,7 +176,7 @@ export class EntityStore {
             this._entities[action["entityKey"]] = EntityFactory.newEntity(this, action["entity"], this._entities[action["refKey"]]);
         }
 
-        const entity = this._entities[action["entityKey"]];
+        const entity: Entity = this._entities[action["entityKey"]];
 
         entity.deserialize(action["entity"]);
 

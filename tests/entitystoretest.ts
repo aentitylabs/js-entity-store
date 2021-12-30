@@ -72,6 +72,80 @@ describe('Entity Store Test', () => {
         expect(entityStore.actions).is.empty;
     })
 
+    it('test load unref entity and update property', () => {
+        const entityStore: EntityStore = new EntityStore();
+
+        const sourceA: MockSource = new MockSource();
+        const sourceB: MockSource = new MockSource();
+
+        entityStore.addSource("StubEntityA", sourceA);
+        entityStore.addSource("StubEntityB", sourceB);
+
+        const entity: any = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": false,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+
+        expect({
+            "StubEntityA::load": new LoadSourceAction(entity),
+            "StubEntityB::load": new LoadSourceAction(entity.prop2)
+        }).to.eql(entityStore.actions);
+
+        const sourceStubEntityA = {
+            "prop1": "hi",
+            "prop2": {
+                "prop1": ""
+            }
+        };
+        sourceA.loadedEntities = [sourceStubEntityA];
+        const sourceStubEntityB = {
+            "prop1": ""
+        };
+        sourceB.loadedEntities = [sourceStubEntityB];
+
+        entityStore.sync();
+
+        expect(sourceStubEntityA["prop1"]).to.eql(entity.prop1);
+        expect(sourceStubEntityA["prop2"]["prop1"]).to.eql(entity.prop2.prop1);
+        expect(sourceStubEntityB["prop1"]).to.eql(entity.prop2.prop1);
+
+        entity.prop1 = "hello";
+        entity.prop1 = "hello!";
+        entity.prop2.prop1 = "Tom";
+
+        expect({
+            "StubEntityA::update": new UpdateSourceAction(entity),
+            "StubEntityB::update": new UpdateSourceAction(entity.prop2)
+        }).to.eql(entityStore.actions);
+
+        entityStore.sync();
+
+        expect([{
+            "prop1": "hello!",
+            "prop2": {
+                "prop1": "Tom"
+            }
+        }]).to.eql(sourceA.updateEntities);
+        expect([{
+            "prop1": "Tom"
+        }]).to.eql(sourceB.updateEntities);
+        expect(entityStore.actions).is.empty;
+    })
+
     it('test load entity and update property with entity name property into schema', () => {
         const entityStore: EntityStore = new EntityStore();
 
@@ -920,6 +994,137 @@ describe('Entity Store Test', () => {
                 "prop1": "this is sync update, Tom"
             }
         }]).to.eql(source.updateEntities);
+        expect(entityStore.actions).is.empty;
+        expect(remoteEntityStore.actions).is.empty;
+
+        //    1. $remoteEntityStore invia la sua coda di azioni
+        //    2. $entityStore riceve la coda da $remoteEntityStore
+        //    3. $entityStore si sincronizza
+        //    4. $entityStore ritorna la lista di entity sincronizzate
+        //    5. $remoteEntityStore riceve la lista di entity sincronizzate
+        //    6. $remoteEntityStore si sincronizza
+    })
+
+    it('test entity store sync with another entity store with unref entities', () => {
+        const entityStore = new EntityStore();
+        const remoteEntityStore = new EntityStore();
+
+        const sourceA = new MockSource();
+        const sourceB = new MockSource();
+
+        const bridge = new MockBridge();
+
+        entityStore.addSource("StubEntityA", sourceA);
+        entityStore.addSource("StubEntityB", sourceB);
+        remoteEntityStore.addSource("StubEntityA", sourceA);
+        remoteEntityStore.addSource("StubEntityB", sourceB);
+
+        entityStore.addBridge("MockBridge", bridge);
+        remoteEntityStore.addBridge("MockBridge", bridge);
+
+        const entity = EntityFactory.newEntity(entityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": false,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+        const remoteEntity = EntityFactory.newEntity(remoteEntityStore, {
+            "entity": "StubEntityA",
+            "ref": false,
+            "properties": {
+                "prop1": {
+                    "value": ""
+                },
+                "prop2": {
+                    "entity": "StubEntityB",
+                    "ref": false,
+                    "properties": {
+                        "prop1": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        });
+
+        expect({
+            "StubEntityA::load": new LoadSourceAction(entity),
+            "StubEntityB::load": new LoadSourceAction(entity.prop2)
+        }).to.eql(entityStore.actions);
+        expect({
+            "StubEntityA::load": new LoadSourceAction(remoteEntity),
+            "StubEntityB::load": new LoadSourceAction(remoteEntity.prop2)
+        }).to.eql(remoteEntityStore.actions);
+
+        sourceA.loadedEntities = [{
+            "prop1": "this is sync hello!"
+        }];
+
+        sourceB.loadedEntities = [{
+            "prop1": "this is sync, Tom!"
+        }]
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom("MockBridge", actions);
+        });
+
+        entityStore.syncTo("MockBridge");
+
+        expect("this is sync hello!").to.eql(entity.prop1);
+        expect("this is sync, Tom!").to.eql(entity.prop2.prop1);
+        expect(entity.prop1).to.eql(remoteEntity.prop1);
+        expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
+
+        entity.prop1 = "this is sync update";
+        entity.prop1 = "this is sync update!";
+        entity.prop2.prop1 = "this is sync update, Tom";
+
+        bridge.onReceived((actions: any) => {
+            remoteEntityStore.syncFrom("MockBridge", actions);
+        });
+
+        entityStore.syncTo("MockBridge");
+
+        expect("this is sync update!").to.eql(entity.prop1);
+        expect("this is sync update, Tom").to.eql(entity.prop2.prop1);
+        expect(entity.prop1).to.eql(remoteEntity.prop1);
+        expect(entity.prop2.prop1).to.eql(remoteEntity.prop2.prop1);
+
+        expect([{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        },{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        },{
+            "prop1": "this is sync update!",
+            "prop2": {
+                "prop1": "this is sync update, Tom"
+            }
+        }]).to.eql(sourceA.updateEntities);
+        expect([{
+            "prop1": "this is sync update, Tom"
+        },{
+            "prop1": "this is sync update, Tom"
+        },{
+            "prop1": "this is sync update, Tom"
+        }]).to.eql(sourceB.updateEntities);
         expect(entityStore.actions).is.empty;
         expect(remoteEntityStore.actions).is.empty;
 

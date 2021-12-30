@@ -11,7 +11,7 @@ export declare class EntityStore {
     register(entity: Entity, source?: Source): void;
     sync(onSync?: any): void;
     syncTo(bridge: string, onSync?: any): void;
-    syncFrom(bridge: string, receivedActions: any, onSync?: any, onReply?: any): void;
+    syncFrom(bridge: string, receivedActions: any, onDeserialize?: any, onReply?: any): void;
     load(entity: Entity): void;
     update(entity: Entity): void;
     delete(entity: Entity): void;
