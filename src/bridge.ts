@@ -11,5 +11,5 @@ export abstract class Bridge {
     }
 
     public abstract send(actions: any, onSend: any): void;
-    public abstract reply(entities: any, onReply: any): void;
+    public abstract reply(entities: any, actions: any, onReply: any): void;
 }

@@ -9,7 +9,7 @@ export declare class EntityStore {
     addSource(entityName: string, source: any): void;
     addBridge(bridgeName: string, bridge: any): void;
     register(entity: Entity, source?: Source): void;
-    sync(onSync?: any): void;
+    sync(onSync?: any, actions?: any): void;
     syncTo(bridge: string, onSync?: any): void;
     syncFrom(bridge: string, receivedActions: any, onDeserialize?: any, onReply?: any): void;
     load(entity: Entity): void;

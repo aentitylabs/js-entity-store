@@ -396,10 +396,10 @@ class EntityStore {
             entity.setSource(source);
         }
     }
-    sync(onSync) {
+    sync(onSync, actions) {
         if (Object.keys(this._actions).length === 0) {
             if (onSync) {
-                onSync();
+                onSync(actions);
             }
             return;
         }
@@ -407,8 +407,11 @@ class EntityStore {
         const sourceAction = this._actions[key];
         //TODO: gestire entità con source a null (null pattern!?)
         sourceAction.sync(sourceAction.entity.getSource(), () => {
+            if (actions) {
+                actions[key] = sourceAction;
+            }
             delete this._actions[key];
-            this.sync(onSync);
+            this.sync(onSync, actions);
         });
     }
     syncTo(bridge, onSync) {
@@ -420,11 +423,16 @@ class EntityStore {
                 }
                 return;
             }
-            this._bridges[bridge].send(serializedActions, (entities) => {
-                this.syncSourceAction(entities, () => {
-                    if (onSync) {
-                        onSync();
-                    }
+            this._bridges[bridge].send(serializedActions, (receivedEntities, receivedActions) => {
+                this.syncSourceAction(receivedEntities, () => {
+                    const deserializedActions = {};
+                    const entities = {};
+                    this.deserializeSourceAction(deserializedActions, entities, receivedActions, 0, () => {
+                        this._actions = {};
+                        if (onSync) {
+                            onSync();
+                        }
+                    });
                 });
             });
         });
@@ -436,17 +444,22 @@ class EntityStore {
             if (onDeserialize) {
                 onDeserialize();
             }
-            this.sync(() => {
+            const localActions = {};
+            this.sync((handledActions) => {
                 const serializedEntities = {};
+                const serializedActions = {};
                 for (const key in entities) {
                     serializedEntities[key] = entities[key].serialize();
                 }
-                this._bridges[bridge].reply(serializedEntities, () => {
+                for (const key in handledActions) {
+                    serializedActions[key] = sourceactionfactory_1.SourceActionFactory.serialize(handledActions[key]);
+                }
+                this._bridges[bridge].reply(serializedEntities, serializedActions, () => {
                     if (onReply) {
                         onReply();
                     }
                 });
-            });
+            }, localActions);
         });
     }
     load(entity) {
